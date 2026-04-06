@@ -1,0 +1,10 @@
+
+/* Reduce altura del body */
+.tabla-tw .ant-table-tbody > tr > td {
+  @apply py-2;   /* py-1 = padding-top/bottom 0.25rem */
+}
+
+/* Opcional: compactar también el header */
+.tabla-tw .ant-table-thead > tr > th {
+  @apply py-2;   /* más pequeño que el default */
+}
