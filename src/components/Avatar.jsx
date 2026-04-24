@@ -18,6 +18,7 @@ const Avatarjs = () => {
     navigate("/h2h/login"); // redirige
   };
 
+  
   const items = [
     /*{
       key: '1',
@@ -60,7 +61,7 @@ const Avatarjs = () => {
             sesión activa
           </span>
         </div>
-
+     
       </div>
     </Dropdown>
   );

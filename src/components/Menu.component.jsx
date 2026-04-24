@@ -15,6 +15,17 @@ const MenuLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const hoy = ()=>{
+    const h=new Date()
+    let dia= h.getDay()
+    let mes = h.getMonth()
+    let ano = h.getFullYear()
+    let fechaFormateada= `${dia}/${mes}/${ano}`
+    return fechaFormateada
+  }
+  const f=hoy()
+
+
   const items = [
   {
     key: 'header-proveedores',
@@ -83,14 +94,18 @@ getItem('Socios de Negocio', '/h2h/socioDeNegocio', <TeamOutlined />)
       </Sider>
 
       <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: "all 0.3s" }}>
-        <Header  className="bg-white shadow-sm flex items-center px-6" style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 5,
-        height: 64,
-      }} >
-         <Avatarjs/>
-      </Header>
+      <Header  
+  className="bg-white shadow-sm flex items-center justify-between px-6"
+  style={{
+    position: "sticky",
+    top: 0,
+    zIndex: 5,
+    height: 64,
+  }}
+>
+  <Avatarjs />
+  <p>Fecha: {f}</p>
+</Header>
         <Content className="padding-lef pl-30 flex-grow"  style={{ margin: '0 16px' }}>
           {children}
         </Content>
