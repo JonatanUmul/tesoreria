@@ -5,9 +5,10 @@ import { Button, Input, Space, Table, Tag, Flex } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
 import { formatFecha } from '../services/FormatearFecta';
+import Modal from "./Modal"
 const App = ({ dato }) => {
 
-
+console.log('datossss',dato)
   const navigate = useNavigate();
 
   const [searchText, setSearchText] = useState('');
@@ -28,7 +29,8 @@ const App = ({ dato }) => {
     para_tienda: dato.pedido_para_tienda,
     telefono: dato.telefono,
     age: formatFecha(dato.fecha_creacion),
-    direccion_entrega: dato.direccion_entrega
+    direccion_entrega: dato.direccion_entrega,
+    U_V3_FCE_Enlace: dato.U_V3_FCE_Enlace
   }));
 
   const NumPedido = (record) => {
@@ -75,7 +77,7 @@ const App = ({ dato }) => {
             onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
             icon={<SearchOutlined />}
             size="small"
-            style={{ borderRadius: "6px", width: 90 }}
+            style={{ borderRadius: "6px", width: 90}}
           >
             Buscar
           </Button>
@@ -149,6 +151,16 @@ const App = ({ dato }) => {
         </button>
       )
     },
+     {
+      title: <span style={{ color: "white" }}>Factura</span>,
+      dataIndex: 'Ver Factura',
+      key: 'factura',
+      ...getColumnSearchProps('factura'),
+      render: (_, record) => (
+          <Modal formulario='VerFacturaReserva' URL_PDF={data[0]?.U_V3_FCE_Enlace} title={data[0]?.U_V3_FCE_Enlace ? 'Ver factura' : 'Sin factura' }/>
+      )
+    },
+    
     {
       title: <span style={{ color: "white" }}>Tienda</span>,
       dataIndex: 'tienda',

@@ -43,7 +43,8 @@ const FormDisabledDemo = () => {
   const options = [
     { value: "orden de venta", label: "Orden de venta" },
     { value: "factura de reserva", label: "Factura de reserva" },
-    { value: "pendiente", label: "Pendiente" }
+    { value: "pendiente", label: "Pendiente" },
+    { value: "cancelado", label: "Cancelado" }
   ];
 
   useEffect(() => {

@@ -15,17 +15,22 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { updateItemCode } from "../services/itemCode.service.js";
 import { getCentrosDeCostos } from "../services/sapHana.service.js";
 import { updateUpdateDocNumOrder } from "../services/sap.service.js";
-import Confirm from "../components/Confirm"
+import { fetchLogModificaicones, postLogModificaicones } from "../services/logDeModificaciones.service.js";
+import Modal from "../components/Modal.jsx";
+import Confirm from "../components/Confirm";
 export default function OrdenDetalle() {
   const navigate = useNavigate();
   const location = useLocation();
   const datos_state = location.state;
+
   // ======================
   // STATES
   // ======================
   const [dat, setDatos] = useState({}); //Datos del socio de negocio
   const [detallePedido, setDetallePedido] = useState([]);
-  const [WhsCodeor, setWhsCode] = useState("Bodega99");
+  const [WhsCodeor, setWhsCode] = useState(
+    datos_state?.pedido?.para_tienda == "006 Xela" ? "Bodega65" : "Bodega99",
+  );
   const [tipoDoc, setTipoDocumento] = useState("oc");
   const [disponible_bodega, setDisponible_bodega] = useState({});
   const [cantidades, setCantidades] = useState({});
@@ -35,21 +40,24 @@ export default function OrdenDetalle() {
   const [messages, setMessages] = useState({});
   const [activateMessage, setActivateMessage] = useState(false);
   const [centroDeCostos, setCentrosDeCostos] = useState({});
+  const [logModificaciones, setLogDeModificaciones] = useState({});
+  const [openLog, setOpenLog] = useState(false);
 
   // ======================
   // Variables
   // ======================
   const options = [
-    { value: "Bodega10", label: "Bodega10" },
-    { value: "Bodega05", label: "Bodega05" },
     { value: "Bodega04", label: "Bodega04" },
-    { value: "Bodega99", label: "Bodega99" },
-    { value: "Bodega98", label: "Bodega98" },
-    { value: "Bodega95", label: "Bodega95" },
+    { value: "Bodega05", label: "Bodega05" },
+    { value: "Bodega10", label: "Bodega10" },
+    { value: "Bodega65", label: "Bodega65" },
     { value: "Bodega67", label: "Bodega67" },
+    { value: "Bodega95", label: "Bodega95" },
+    { value: "Bodega98", label: "Bodega98" },
+    { value: "Bodega99", label: "Bodega99" },
   ];
   const tipoDocumento = [
-    { value: "oc", label: "Orden de Compra" },
+    { value: "oc", label: "Orden de venta" },
     { value: "fr", label: "Factura de reserva" },
   ];
 
@@ -77,7 +85,7 @@ export default function OrdenDetalle() {
     } else {
       respuesta = businessPartners.data;
     }
-    console.log("prueba aca", respuesta.ok);
+    console.log("prueba aca", respuesta);
 
     if (respuesta.ok) {
       const objectBP = businessPartners?.data?.data;
@@ -146,7 +154,6 @@ export default function OrdenDetalle() {
   const centrosDeCostos = async (socio_Negocio) => {
     try {
       const respuesta = await getCentrosDeCostos(socio_Negocio);
-      console.log("123", respuesta);
       SetAlert({
         ok: !respuesta.data.ok,
         tipo: "info",
@@ -179,10 +186,28 @@ export default function OrdenDetalle() {
     (BusinessPartnersSL(), detalleOrdenDeVenta(), ConsultarDisponibilidad_sl());
   };
 
+  const logDeModificaciones = async () => {
+    let numeroPed = datos_state?.pedido?.pedido;
+    try {
+      const response = await fetchLogModificaicones(numeroPed);
+      setOpenLog(true);
+      setLogDeModificaciones(response.data.data);
+    } catch (error) {
+      SetAlert({
+        ok: false,
+        tipo: "error",
+        text: error,
+      });
+    }
+  };
+
   // ======================
   // EFFECTS
   // ======================
   // Cliente
+  useEffect(()=>{
+    logDeModificaciones()
+  },[openLog])
   useEffect(() => {
     if (socio_Negocio) BusinessPartnersSL();
   }, [socio_Negocio]);
@@ -237,11 +262,36 @@ export default function OrdenDetalle() {
   // ======================
   //FUNCIONES
   // ======================
-  const cambiarCantidad = (e, modelo) => {
+  const cambiarCantidad = (e, modelo, d_cantidad) => {
+    const nuevaCantidad = e.target.value
+    const cantidadAnterior = d_cantidad
     setCantidades((prev) => ({
       ...prev,
       [modelo]: Number(e.target.value),
     }));
+  
+    if(cantidadAnterior!==nuevaCantidad)
+      {
+      let cambio = 
+      {
+        cantidad: {
+        antes: d_cantidad,
+        despues: nuevaCantidad
+      }
+       }
+       return cambio
+    }
+
+    postLogModificaicones(
+    {
+      tabla: "orden_detalle_detalle",
+      tipo_operacion: "UPDATE",
+      id_registro: 0,
+      referencia: numeroPedido,
+      cambios: JSON.stringify(cambio),
+      usuario: "system",
+      origen: "WEB",
+    })
   };
 
   const buildPayload = () => {
@@ -254,7 +304,7 @@ export default function OrdenDetalle() {
             bodega: WhsCodeor,
             para_tienda: orden.cliente.pedido_para_tienda,
             direccion_entrega,
-            direccion: Tienda,
+            direccion: orden.cliente.direccion,
             U_DoctoNom: orden.cliente.nombre,
             U_FacNit: U_FacNit,
             U_OC: numeroPedido,
@@ -288,7 +338,7 @@ export default function OrdenDetalle() {
             ReserveInvoice: "tYES",
             para_tienda: orden.cliente.pedido_para_tienda,
             direccion_entrega,
-            direccion: Tienda,
+            direccion: orden.cliente.direccion,
             U_DoctoNom: orden.cliente.nombre,
             U_FacNit: U_FacNit,
             U_OC: numeroPedido,
@@ -319,10 +369,21 @@ export default function OrdenDetalle() {
 
   const payload = buildPayload();
 
-  const updateDocNumOrder = async (id, DocNum, tipoDocumento) => {
+  const updateDocNumOrder = async (
+    id,
+    DocNum,
+    tipoDocumento,
+    U_V3_FCE_Enlace,
+  ) => {
+    console.log("enDetalle", U_V3_FCE_Enlace);
     try {
-      const response = await updateUpdateDocNumOrder(id, DocNum, tipoDocumento);
-        SetAlert({
+      const response = await updateUpdateDocNumOrder(
+        id,
+        DocNum,
+        tipoDocumento,
+        U_V3_FCE_Enlace,
+      );
+      SetAlert({
         ok: !response.ok,
         tipo: "info",
         text: response.message,
@@ -337,7 +398,14 @@ export default function OrdenDetalle() {
   };
 
   const crear_ordenVenta = async () => {
-    if (!window.confirm("¿Crear en SAP?")) return;
+    if (
+      !window.confirm(
+        tipoDoc == "oc"
+          ? "Crear orden de venta en SAP"
+          : "Crear factura de reserva en SAP",
+      )
+    )
+      return;
     setActivateMessage(true);
     setMessages({
       types: "loading",
@@ -347,7 +415,6 @@ export default function OrdenDetalle() {
     setSkeleton(true);
     const response = await creacionDocumentoSap({ tipoDoc, payload });
     let respuesta;
-
     if (response.error == undefined) {
       respuesta = response.data[0];
     } else {
@@ -383,41 +450,70 @@ export default function OrdenDetalle() {
         tipo: "success",
         text: `OV creado exitosamente: DocEntry: ${respuesta.data.DocEntry}, DocNum: ${respuesta.data.DocNum}`,
       });
-    const tipoDocumento= tipoDoc=='oc' ? 'orden de venta':'factura de reserva'
-    updateDocNumOrder(payload?.id, response?.data[0]?.data?.DocNum, tipoDocumento);
+      const tipoDocumento =
+        tipoDoc == "oc" ? "orden de venta" : "factura de reserva";
+      const U_V3_FCE_Enlace = response?.data[0].data?.U_V3_FCE_Enlace;
+      console.log("liea 390", U_V3_FCE_Enlace);
+      const DocNum = response?.data[0]?.data?.DocNum;
+      updateDocNumOrder(payload?.id, DocNum, tipoDocumento, U_V3_FCE_Enlace);
       setTimeout(() => {
         navigate("/h2h/OrdenDeVenta");
       }, 1000);
     }
   };
-  const handleDeleteItem = (model) => {
-    console.log(model);
-    if (!window.confirm("¿Eliminar este ítem?")) return;
-    desactivarItemc(model.id_detalle);
-    setDetallePedido((prev) => {
-      const newData = prev?.data?.data?.[0]?.filter(
-        (item) => item.d_sku_cliente !== model.numero_oc,
-      );
+const handleDeleteItem = async (model) => {
+  if (!window.confirm("¿Eliminar este ítem?")) return;
 
-      return {
-        ...prev,
-        data: {
-          ...prev.data,
-          data: [newData],
-        },
-      };
-    });
+  // 🔥 LOG
+  const cambios = {
+    item: {
+      antes: `${model.d_sku_ecofiltro} - ${model.d_descripcion_cliente}`,
+      despues: "ELIMINADO",
+    },
+    cantidad: {
+      antes: model.d_cantidad,
+      despues: 0,
+    },
   };
 
-    const handleConfirm = async () => {
-  try {
-    const values = await form.validateFields(); //  captura valores actuales
+  await postLogModificaicones({
+    tabla: "orden_detalle",
+    tipo_operacion: "DELETE",
+    id_registro: model.id_detalle,
+    referencia: numeroPedido,
+    cambios: JSON.stringify(cambios),
+    usuario: "system",
+    origen: "WEB",
+  });
 
-    await handleFinish(values); // reutilizas tu lógica
-  } catch (error) {
-    console.log("Errores de validación", error);
-  }
+  // 👇 luego eliminas
+  desactivarItemc(model.id_detalle);
+
+  setDetallePedido((prev) => {
+    const newData = prev?.data?.data?.[0]?.filter(
+      (item) => item.d_sku_cliente !== model.numero_oc,
+    );
+
+    return {
+      ...prev,
+      data: {
+        ...prev.data,
+        data: [newData],
+      },
+    };
+  });
 };
+
+  const handleConfirm = async () => {
+    try {
+      const values = await form.validateFields(); //  captura valores actuales
+
+      await handleFinish(values); // reutilizas tu lógica
+    } catch (error) {
+      console.log("Errores de validación", error);
+    }
+  };
+
   return (
     <div className="p-6">
       {activateMessage ? (
@@ -452,6 +548,14 @@ export default function OrdenDetalle() {
       ) : null}
 
       <div className="bg-white shadow-md rounded-xl p-5 mb-5 overflow-x-auto">
+     
+        <Modal
+          open={openLog}
+          title="Log modificaciones"
+          formulario="LogModificaciones"
+          record={logModificaciones}
+          //onCancel={() => setOpenLog(false)}
+        />
         <h2 className="text-lg font-semibold mb-3">Información del Cliente</h2>
         <p>
           <strong>Código SAP:</strong> {orden.cliente.codigo_SAP}
@@ -555,7 +659,11 @@ export default function OrdenDetalle() {
               placeholder="Seleccione bodega"
               disabled={alert.ok}
               tooltip={alert.ok ? null : { msj: alert.text, ok: alert.ok }}
-              defaultValue="Bodega99"
+              defaultValue={
+                datos_state?.pedido?.para_tienda == "006 Xela"
+                  ? "Bodega65"
+                  : "Bodega99"
+              }
               options={options}
               onChange={setWhsCode}
             />
@@ -647,7 +755,7 @@ export default function OrdenDetalle() {
                         <input
                           name="cantidad_mod w-auto"
                           onChange={(e) =>
-                            cambiarCantidad(e, a.d_sku_ecofiltro)
+                            cambiarCantidad(e, a.d_sku_ecofiltro, a.d_cantidad)
                           }
                           style={{
                             textAlign: "center",
@@ -671,9 +779,9 @@ export default function OrdenDetalle() {
                       </td>
                       <td style={{ textAlign: "center" }}>
                         Q
-                        {!Math.trunc(cantidades[a.modelo], 0)
+                        {!Math.trunc(cantidades[a.d_sku_ecofiltro], 0)
                           ? a.d_total_linea_sinIva
-                          : cantidades[a.modelo] * a.d_precio_unitario_sinIva}
+                          : cantidades[a.d_sku_ecofiltro] * a.d_precio_unitario_sinIva}
                       </td>
                       {/* <td style={{ textAlign: "center" }}>{a.cc_departamento}</td>
                       <td style={{ textAlign: "center" }}>{a.cc_canal}</td>
@@ -689,12 +797,15 @@ export default function OrdenDetalle() {
               tooltip={alert.ok ? null : { msj: alert.text, ok: alert.ok }}
               namebu="Buton Crear OT"
               onClick={crear_ordenVenta}
-              text="Crear OV"
+              text={
+                tipoDoc == "oc"
+                  ? "Crear orden de venta"
+                  : "Crear factura de reserva"
+              }
               type="primary"
               disabled={alert.ok ? alert.ok : "false"}
             />
           ) : (
-    
             <ButtonCustom text={DocNum} />
           )}
         </>
