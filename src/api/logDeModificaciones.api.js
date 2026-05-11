@@ -7,8 +7,8 @@ export const getLogModificaciones = async(values)=>{
     })
 }
 export const postLogModificaciones = async(values)=>{
-    console.log('Valores1234 ',values)
-    return axios.get("/log/post_modificaciones",{
+    console.log('logdelete ',values)
+    return axios.post("/log/post_modificaciones",{
         params: { values }
     })
 }

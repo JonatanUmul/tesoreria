@@ -32,7 +32,7 @@ console.log('datossss',dato)
     direccion_entrega: dato.direccion_entrega,
     U_V3_FCE_Enlace: dato.U_V3_FCE_Enlace
   }));
-
+console.log('datas',data)
   const NumPedido = (record) => {
     setPedido(record);
   };
@@ -157,7 +157,7 @@ console.log('datossss',dato)
       key: 'factura',
       ...getColumnSearchProps('factura'),
       render: (_, record) => (
-          <Modal formulario='VerFacturaReserva' URL_PDF={data[0]?.U_V3_FCE_Enlace} title={data[0]?.U_V3_FCE_Enlace ? 'Ver factura' : 'Sin factura' }/>
+          <Modal formulario='VerFacturaReserva' URL_PDF={record?.U_V3_FCE_Enlace} title={record?.U_V3_FCE_Enlace ? 'Ver factura' : 'Sin factura' }/>
       )
     },
     

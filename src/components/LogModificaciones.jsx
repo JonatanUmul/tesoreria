@@ -4,6 +4,7 @@ const LogAuditoria = ({ record }) => {
   const data = Array.isArray(record) ? record : record ? [record] : [];
 
   const renderCambios = (cambios) => {
+    console.log('desde log',cambios)
     try {
       const parsed =
         typeof cambios === "string" ? JSON.parse(cambios) : cambios;

@@ -1,5 +1,5 @@
 // pages/OrdenDetalle.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation, Await, Navigate } from "react-router-dom";
 import { get_Disponibilidad_Bodega_sl } from "../services/get_Disponibilidad_Bodega_sl.js";
 import getBusinessPartnersSL from "../services/BusinessPartners_sl.js";
@@ -15,14 +15,18 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { updateItemCode } from "../services/itemCode.service.js";
 import { getCentrosDeCostos } from "../services/sapHana.service.js";
 import { updateUpdateDocNumOrder } from "../services/sap.service.js";
-import { fetchLogModificaicones, postLogModificaicones } from "../services/logDeModificaciones.service.js";
+import {
+  fetchLogModificaicones,
+  postLogModificaicones,
+} from "../services/logDeModificaciones.service.js";
 import Modal from "../components/Modal.jsx";
+import { UserContext } from "../context/user.context.jsx";
 import Confirm from "../components/Confirm";
 export default function OrdenDetalle() {
   const navigate = useNavigate();
   const location = useLocation();
   const datos_state = location.state;
-
+  const { userName } = useContext(UserContext);
   // ======================
   // STATES
   // ======================
@@ -34,6 +38,7 @@ export default function OrdenDetalle() {
   const [tipoDoc, setTipoDocumento] = useState("oc");
   const [disponible_bodega, setDisponible_bodega] = useState({});
   const [cantidades, setCantidades] = useState({});
+  const [nueva_cantidad, setNueva_cantidad] = useState(0);
   const item = detallePedido?.data?.data?.[0] || [];
   const [alert, SetAlert] = useState({});
   const [skelton, setSkeleton] = useState(false);
@@ -205,9 +210,9 @@ export default function OrdenDetalle() {
   // EFFECTS
   // ======================
   // Cliente
-  useEffect(()=>{
-    logDeModificaciones()
-  },[openLog])
+  useEffect(() => {
+    logDeModificaciones();
+  }, [openLog]);
   useEffect(() => {
     if (socio_Negocio) BusinessPartnersSL();
   }, [socio_Negocio]);
@@ -237,17 +242,17 @@ export default function OrdenDetalle() {
   // ======================
   const orden = {
     cliente: {
-      codigo_SAP: dat.CardCode || "N/A",
-      AdditionalID: dat.AdditionalID || "N/A",
-      nombre: dat.CardName || "Nombre Cliente",
-      telefono: dat.Phone1 || "N/A",
-      direccion: dat.Address || "N/A",
-      direccion_entrega: datos_state?.pedido?.direccion_entrega || "N/A",
-      pedido_para_tienda: datos_state?.pedido?.para_tienda || "N/A",
-      ContactPerson: dat.ContactPerson || "N/A",
-      Email: dat.EmailAddress || "N/A",
-      DocNum: datos_state?.pedido?.DocNum || "N/A",
-      fecha_oc: datos_state.pedido.age || "N/A",
+      codigo_SAP: dat.CardCode,
+      AdditionalID: dat.AdditionalID,
+      nombre: dat.CardName,
+      telefono: dat.Phone1,
+      direccion: dat.Address,
+      direccion_entrega: datos_state?.pedido?.direccion_entrega,
+      pedido_para_tienda: datos_state?.pedido?.para_tienda,
+      ContactPerson: dat.ContactPerson,
+      Email: dat.EmailAddress,
+      DocNum: datos_state?.pedido?.DocNum,
+      fecha_oc: datos_state.pedido.age,
       Vendedor: centroDeCostos.Vendedor,
       name_cc_departamento: centroDeCostos.name_depto,
       name_cc_canal: centroDeCostos.name_canal,
@@ -263,27 +268,25 @@ export default function OrdenDetalle() {
   //FUNCIONES
   // ======================
   const cambiarCantidad = (e, modelo, d_cantidad) => {
-    const nuevaCantidad = e.target.value
-    const cantidadAnterior = d_cantidad
+    const nuevaCantidad = e.target.value;
+    setNueva_cantidad(nuevaCantidad);
+    const cantidadAnterior = d_cantidad;
     setCantidades((prev) => ({
       ...prev,
       [modelo]: Number(e.target.value),
     }));
-  
-    if(cantidadAnterior!==nuevaCantidad)
-      {
-      let cambio = 
-      {
+
+    if (cantidadAnterior !== nuevaCantidad) {
+      let cambio = {
         cantidad: {
-        antes: d_cantidad,
-        despues: nuevaCantidad
-      }
-       }
-       return cambio
+          antes: d_cantidad,
+          despues: nuevaCantidad,
+        },
+      };
+      return cambio;
     }
 
-    postLogModificaicones(
-    {
+    postLogModificaicones({
       tabla: "orden_detalle_detalle",
       tipo_operacion: "UPDATE",
       id_registro: 0,
@@ -291,7 +294,7 @@ export default function OrdenDetalle() {
       cambios: JSON.stringify(cambio),
       usuario: "system",
       origen: "WEB",
-    })
+    });
   };
 
   const buildPayload = () => {
@@ -320,8 +323,8 @@ export default function OrdenDetalle() {
                 modelo: a.d_sku_ecofiltro,
                 descripcion: a.descripcion_ecofiltro,
                 cantidad: cantidadFinal,
-                precio: a.d_precio_unitario_sinIva,
-                total: a.d_total_linea_sinIva,
+                precio: Number(a.d_precio_unitario_sinIva).toFixed(5),
+                total: Number(a.d_total_linea_sinIva).toFixed(5),
                 cc_departamento: orden.cliente.cc_departamento,
                 cc_canal: orden.cliente.cc_canal,
                 cc_vendedor: orden.cliente.cc_vendedor,
@@ -354,8 +357,8 @@ export default function OrdenDetalle() {
                 modelo: a.d_sku_ecofiltro,
                 descripcion: a.descripcion_ecofiltro,
                 cantidad: cantidadFinal,
-                precio: a.d_precio_unitario_sinIva,
-                total: a.d_total_linea_sinIva,
+                precio: Number(a.d_precio_unitario_sinIva).toFixed(5),
+                total: Number(a.d_total_linea_sinIva).toFixed(5),
                 cc_departamento: orden.cliente.cc_departamento,
                 cc_canal: orden.cliente.cc_canal,
                 cc_vendedor: orden.cliente.cc_vendedor,
@@ -461,48 +464,44 @@ export default function OrdenDetalle() {
       }, 1000);
     }
   };
-const handleDeleteItem = async (model) => {
-  if (!window.confirm("¿Eliminar este ítem?")) return;
+  const handleDeleteItem = async (model) => {
+    if (!window.confirm("¿Eliminar este ítem?")) return;
 
-  // 🔥 LOG
-  const cambios = {
-    item: {
-      antes: `${model.d_sku_ecofiltro} - ${model.d_descripcion_cliente}`,
-      despues: "ELIMINADO",
-    },
-    cantidad: {
-      antes: model.d_cantidad,
-      despues: 0,
-    },
-  };
+    // luego eliminas
+    desactivarItemc(model.id_detalle);
 
-  await postLogModificaicones({
-    tabla: "orden_detalle",
-    tipo_operacion: "DELETE",
-    id_registro: model.id_detalle,
-    referencia: numeroPedido,
-    cambios: JSON.stringify(cambios),
-    usuario: "system",
-    origen: "WEB",
-  });
+    setDetallePedido((prev) => {
+      const newData = prev?.data?.data?.[0]?.filter(
+        (item) => item.d_sku_cliente !== model.numero_oc,
+      );
 
-  // 👇 luego eliminas
-  desactivarItemc(model.id_detalle);
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          data: [newData],
+        },
+      };
+    });
+    //  LOG
 
-  setDetallePedido((prev) => {
-    const newData = prev?.data?.data?.[0]?.filter(
-      (item) => item.d_sku_cliente !== model.numero_oc,
-    );
-
-    return {
-      ...prev,
-      data: {
-        ...prev.data,
-        data: [newData],
+    const cambios = {
+      item: {
+        antes: `${model.d_sku_ecofiltro} - ${model.d_descripcion_cliente}`,
+        despues: "ELIMINADO",
       },
     };
-  });
-};
+
+    await postLogModificaicones({
+      tabla: "orden_detalle",
+      tipo_operacion: "DELETE",
+      id_registro: model.id_detalle,
+      referencia: numeroPedido,
+      cambios: JSON.stringify(cambios),
+      usuario: userName,
+      origen: "WEB",
+    });
+  };
 
   const handleConfirm = async () => {
     try {
@@ -514,6 +513,13 @@ const handleDeleteItem = async (model) => {
     }
   };
 
+  const totalGeneral = item.reduce((acc, a) => {
+    const cantidad = cantidades[a.d_sku_ecofiltro] ?? a.d_cantidad;
+
+    const totalLinea = cantidad * Number(a.d_precio_unitario_sinIva);
+
+    return acc + totalLinea;
+  }, 0);
   return (
     <div className="p-6">
       {activateMessage ? (
@@ -548,7 +554,6 @@ const handleDeleteItem = async (model) => {
       ) : null}
 
       <div className="bg-white shadow-md rounded-xl p-5 mb-5 overflow-x-auto">
-     
         <Modal
           open={openLog}
           title="Log modificaciones"
@@ -693,9 +698,11 @@ const handleDeleteItem = async (model) => {
                   {item.map((a, i) => (
                     <tr key={i} className="border-b hover:bg-gray-50">
                       <td className="py-2">
-                        <button onClick={() => handleDeleteItem(a)}>
-                          <DeleteOutlined />
-                        </button>
+                        {!DocNum || !DocNum == "-" ? (
+                          <button onClick={() => handleDeleteItem(a)}>
+                            <DeleteOutlined />
+                          </button>
+                        ) : null}
                       </td>
                       <td className="py-2">{a.d_sku_cliente}</td>
                       <td className="py-2">{a.d_sku_ecofiltro}</td>
@@ -753,6 +760,7 @@ const handleDeleteItem = async (model) => {
                       </td>
                       <td style={{ textAlign: "center" }}>
                         <input
+                          disabled={!DocNum || !DocNum == "-" ? false : true}
                           name="cantidad_mod w-auto"
                           onChange={(e) =>
                             cambiarCantidad(e, a.d_sku_ecofiltro, a.d_cantidad)
@@ -779,9 +787,15 @@ const handleDeleteItem = async (model) => {
                       </td>
                       <td style={{ textAlign: "center" }}>
                         Q
-                        {!Math.trunc(cantidades[a.d_sku_ecofiltro], 0)
-                          ? a.d_total_linea_sinIva
-                          : cantidades[a.d_sku_ecofiltro] * a.d_precio_unitario_sinIva}
+                        {Number(
+                          !Math.trunc(cantidades[a.d_sku_ecofiltro], 0)
+                            ? a.d_total_linea_sinIva
+                            : cantidades[a.d_sku_ecofiltro] *
+                                a.d_precio_unitario_sinIva,
+                        ).toLocaleString("es-GT", {
+                          minimumFractionDigits: 5,
+                          maximumFractionDigits: 5,
+                        })}
                       </td>
                       {/* <td style={{ textAlign: "center" }}>{a.cc_departamento}</td>
                       <td style={{ textAlign: "center" }}>{a.cc_canal}</td>
@@ -789,6 +803,32 @@ const handleDeleteItem = async (model) => {
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr
+                    style={{
+                      background: "#f4f6f8",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <td
+                      colSpan="10"
+                      style={{ textAlign: "right", padding: 10 }}
+                    >
+                      TOTAL GENERAL:
+                    </td>
+
+                    <td
+                      style={{
+                        textAlign: "center",
+                        padding: 10,
+                        color: "#004b23",
+                        fontSize: 16,
+                      }}
+                    >
+                      Q{totalGeneral.toFixed(5)}
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>

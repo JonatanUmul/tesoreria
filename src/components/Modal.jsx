@@ -8,7 +8,7 @@ import LeerUrlPdf from './LeerURL'
 import LogModificaciones from './LogModificaciones'
 
 const App = ({title, formulario, socioDeNegocio , record, get_socioNegocio, URL_PDF}) => { 
-
+console.log('URL_PDF',URL_PDF)
   const [open, setOpen] = useState(false);
   console.log('entro aca: ',open)
   const [disabled, setDisabled] = useState(true);
@@ -93,10 +93,10 @@ useEffect(()=>{
     <>
     <Button onClick={showModal} disabled={disabled}>{tituloDragable()}</Button>
 
-   <Modal
+<Modal
   title={
     <div
-      style={{ width: '100%', cursor: 'move' }}
+      style={{ width: "100%", cursor: "move" }}
       onMouseOver={() => setDisabled(false)}
       onMouseOut={() => setDisabled(true)}
     >
@@ -108,12 +108,16 @@ useEffect(()=>{
   onCancel={handleCancel}
   footer={null}
   maskClosable={false}
-
-  width="90%"
-  style={{ top: 10 }}
-
-
-  modalRender={modal => (
+  style={{ top: 20 }}
+  width="90vw"
+  styles={{
+    body: {
+      height: "80vh",
+      overflowY: "auto",
+      padding: 20,
+    },
+  }}
+  modalRender={(modal) => (
     <Draggable
       disabled={disabled}
       bounds={bounds}
