@@ -1,9 +1,13 @@
 import { DatePicker, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import toDay from '../components/toDay.js'
+import { useEffect } from 'react';
 const { RangePicker } = DatePicker;
 
 const App = ({onDateChanges, f_inicio, f_fin }) => {
+  useEffect(()=>{
+    toDay
+  })
   console.log(' f_inicio, f_fin', toDay)
   return(
   <Space vertical>

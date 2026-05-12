@@ -57,7 +57,7 @@ console.log('datas',data)
 
   const getColumnSearchProps = dataIndex => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
-      <div style={{ padding: 10 }}>
+      <div style={{ padding: 10, background:'white' }}>
         
         <Input
           ref={searchInput}
@@ -76,7 +76,7 @@ console.log('datas',data)
           <Button
             type="primary"
             onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
+            icon={<SearchOutlined style={{ color: '#fff' }} />}
             size="small"
             style={{ borderRadius: "6px", width: 90}}
           >
@@ -103,7 +103,8 @@ console.log('datas',data)
     ),
 
     filterIcon: filtered => (
-      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+     // <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />;
+      <SearchOutlined style={{ color: '#fff' }} />
     ),
 
     onFilter: (value, record) =>

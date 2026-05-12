@@ -69,7 +69,8 @@ const TablaSociosNegocios = ({datos}) => {
     ),
 
     filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+      //<SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+       <SearchOutlined style={{ color: '#fff' }} />
     ),
 
     onFilter: (value, record) =>
