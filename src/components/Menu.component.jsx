@@ -3,6 +3,7 @@ import { Layout, Menu, theme } from 'antd';
 import { ShoppingCartOutlined, AppstoreOutlined, TeamOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from "react-router-dom";
 import Avatarjs from './Avatar';
+import toDay from './toDay.js'
 const { Header, Content, Footer, Sider } = Layout;
 
 function getItem(label, key, icon, children) {
@@ -15,15 +16,7 @@ const MenuLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const hoy = ()=>{
-    const h=new Date()
-    let dia= h.getDay()
-    let mes = h.getMonth()
-    let ano = h.getFullYear()
-    let fechaFormateada= `${dia}/${mes}/${ano}`
-    return fechaFormateada
-  }
-  const f=hoy()
+  const f=toDay
 
 
   const items = [
