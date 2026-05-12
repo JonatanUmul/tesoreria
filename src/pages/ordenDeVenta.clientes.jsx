@@ -1,45 +1,93 @@
 import React, { useEffect, useState } from 'react';
-import { PlusOutlined, OrderedListOutlined } from '@ant-design/icons';
 import ButtonCustom from '../components/ButtonCustom';
-import { useNavigate } from 'react-router-dom';
-import TableOrdenesDeVenta from '../components/TablaOrdenesDeVenta'
+import TableOrdenesDeVenta from '../components/TablaOrdenesDeVenta';
 import pedidoHeaderCompleto from '../services/pedidoHeaderCompleto';
 import SelectReusable from '../components/Select';
-import {runWorkflowItemCode} from '../services/itemCode.service'
-import Alert from "../components/Alert.jsx"
+import { runWorkflowItemCode } from '../services/itemCode.service';
+import Alert from "../components/Alert.jsx";
+import Fecha from "../components/fechas.jsx";
+import Input from "../components/Input.jsx";
+import { formatFecha } from '../services/FormatearFecta.js';
+
 const FormDisabledDemo = () => {
 
-  const navigate = useNavigate()
-  const op=localStorage.getItem('o')
-  
-  const [datos, setDatos] = useState([])
-  const [opcion, setOpcion] = useState(op)
-  localStorage.setItem('o',opcion)
-  const [error, setError] = useState([])
+  const op = localStorage.getItem('o') || 'orden de venta';
+  const id_mail = localStorage.getItem('id_e');
+  const f_inicio = localStorage.getItem('f_inicio');
+  const f_fin = localStorage.getItem('f_fin');
+
+  const [datos, setDatos] = useState([]);
+  const [opcion, setOpcion] = useState(op);
   const [alert, SetAlert] = useState({});
-  const data = Array.isArray(datos)&&datos?.map(item => item) || [];
+  const [loading, setLoading] = useState(false);
+  const [valueInput, setValueInput] = useState('');
+  const [filtros, setFiltros] = useState({
+    op: op,
+    id_email: id_mail,
+    fechaInicio: f_inicio,
+    fechaFin: f_fin
+  });
+
+  const data = Array.isArray(datos) ? datos : [];
+
+  // =========================
+  // OBTENER DATA
+  // =========================
   const get_Data_OV = async () => {
-    const response = await pedidoHeaderCompleto({ opcion });
-    setDatos(response)
+    try {
+
+      setLoading(true);
+
+      const response = await pedidoHeaderCompleto({
+        filtros
+      });
+
+      setDatos(response);
+
+    } catch (error) {
+
+      console.error(error);
+
+      SetAlert({
+        ok: true,
+        tipo: "error",
+        text: "Ocurrió un error al obtener la información."
+      });
+
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateItems = async()=>{
-    const respuesta = await runWorkflowItemCode()
-    console.log('work',respuesta)
-       if(respuesta.ok){
-     SetAlert({
-        ok: respuesta.ok,
+  // =========================
+  // ACTUALIZAR ITEMS
+  // =========================
+  const updateItems = async () => {
+
+    const respuesta = await runWorkflowItemCode();
+
+    if (respuesta.ok) {
+
+      SetAlert({
+        ok: true,
         tipo: "success",
         text: 'Ejecución del workflow completada correctamente.'
       });
-    }else{
-    SetAlert({
-       ok: !respuesta.ok,
-       tipo: "info",
-       text: 'Ocurrió un error al ejecutar el proceso. Por favor, contacte al administrador del sistema.'
-     });
-}
-  }
+
+    } else {
+
+      SetAlert({
+        ok: true,
+        tipo: "info",
+        text: 'Ocurrió un error al ejecutar el proceso. Por favor, contacte al administrador del sistema.'
+      });
+
+    }
+  };
+
+  // =========================
+  // OPTIONS SELECT
+  // =========================
   const options = [
     { value: "orden de venta", label: "Orden de venta" },
     { value: "factura de reserva", label: "Factura de reserva" },
@@ -47,32 +95,101 @@ const FormDisabledDemo = () => {
     { value: "cancelado", label: "Cancelado" }
   ];
 
-  useEffect(() => {
+  // =========================
+  // CAMBIO ESTADO
+  // =========================
+  const handleEstado = (value) => {
+
+    setOpcion(value);
+
+    setFiltros((prev) => ({
+      ...prev,
+      op: value
+    }));
+  };
+
+  // =========================
+  // CAMBIO FECHAS
+  // =========================
+  const HandleChanges = (e) => {
+
+    setFiltros((prev) => ({
+      ...prev,
+      fechaInicio: e?.[0] ? formatFecha(e[0]) : null,
+      fechaFin: e?.[1] ? formatFecha(e[1]) : null
+    }));
+  };
+
+  // =========================
+  // INPUT EMAIL
+  // =========================
+  const handleInput = (e) => {
+
+    const value = e.target.value;
+
+    setValueInput(value);
+
+    setFiltros((prev) => ({
+      ...prev,
+      id_email: value
+    }));
+  };
+
+  // =========================
+  // BUSCAR
+  // =========================
+  const Buscar = () => {
     get_Data_OV();
-  }, [opcion]);
+  };
 
+  // =========================
+  // GUARDAR LOCAL STORAGE
+  // =========================
+  useEffect(() => {
+    localStorage.setItem('o', opcion);
+    localStorage.setItem('id_e', filtros.id_email);
+    localStorage.setItem('f_inicio', filtros.fechaInicio);
+    localStorage.setItem('f_fin', filtros.fechaFin);
+  }, [opcion, filtros]);
+  console.log('inicio',filtros.fechaInicio)
+  console.log('fin',filtros.fechaFin)
+  //===========================
+  //Usefect
+  //===========================
+  useEffect(()=>{
+    get_Data_OV()
+  },[])
   return (
-    <div style={{
-      padding: "20px",
-      background: "#f4f6f9",
-      minHeight: "100vh"
-    }}>
 
-      {/* FILTRO */}
-      <div style={{
-        background: "#ffffff",
-        padding: "15px",
-        borderRadius: "12px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        marginBottom: "20px",
-        display: "flex",
-        alignItems: "center",
-        gap: "10px"
-      }}>
-        <span style={{
-          fontWeight: "600",
-          color: "#0b3c5d"
-        }}>
+    <div
+      style={{
+        padding: "20px",
+        background: "#f4f6f9",
+        minHeight: "100vh"
+      }}
+    >
+
+      {/* FILTROS */}
+      <div
+        style={{
+          background: "#ffffff",
+          padding: "15px",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flexWrap: "wrap"
+        }}
+      >
+
+        <span
+          style={{
+            fontWeight: "600",
+            color: "#0b3c5d"
+          }}
+        >
           Estado:
         </span>
 
@@ -81,24 +198,53 @@ const FormDisabledDemo = () => {
           options={options}
           placeholder="Selecciona estado"
           defaultValue={op}
-          onChange={setOpcion}
+          onChange={handleEstado}
         />
-       {/* <ButtonCustom onClick={updateItems} disabled='false' text='Actualizar items'/>*/}
+
+        <Input
+          defaulValue={id_mail}
+          type="text"
+          placeholder="Id_Email"
+          handleChange={handleInput}
+          value={valueInput}
+        />
+
+        <Fecha onDateChanges={HandleChanges} f_inicio={f_inicio} f_fin={f_fin}/>
+
+        {/* <ButtonCustom
+          onClick={updateItems}
+          disabled={false}
+          text='Actualizar items'
+        /> */}
+
+        <ButtonCustom
+          text={loading ? 'Buscando...' : 'Buscar'}
+          disabled='false'
+          onClick={Buscar}
+
+        />
+
       </div>
-    {alert.ok ? <Alert alert={alert} /> : null}
+
+      {/* ALERT */}
+      {alert.ok ? <Alert alert={alert} /> : null}
+
       {/* TABLA */}
-    <div style={{
-   background: "#fff",
-        padding: "15px",
-        borderRadius: "10px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-     
-}}>
-  <TableOrdenesDeVenta dato={data}/>
-</div>
+      <div
+        style={{
+          background: "#fff",
+          padding: "15px",
+          borderRadius: "10px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
+        }}
+      >
+
+        <TableOrdenesDeVenta dato={data} />
+
+      </div>
 
     </div>
   );
 };
 
-export default () => <FormDisabledDemo />;
+export default FormDisabledDemo;

@@ -73,12 +73,24 @@ console.log('URL_PDF',URL_PDF)
 
   const disabledButton = () =>{
     switch (formulario) {
+      case "itemCode":
+          setDisabled(false)
+        break;
+      case "updateItemCode":
+          setDisabled(false)
+        break;
       case "VerFacturaReserva":
         if(URL_PDF){
           setDisabled(false)
         }
         break;
        case "LogModificaciones":
+          setDisabled(false)
+        break;
+       case "socioNegocio":
+          setDisabled(false)
+        break;
+        case "updateItemCode":
           setDisabled(false)
         break;
       default:
@@ -88,10 +100,10 @@ console.log('URL_PDF',URL_PDF)
 
 useEffect(()=>{
   disabledButton()
-},[formulario, URL_PDF])
+},[title, formulario, socioDeNegocio , record, get_socioNegocio, URL_PDF])
   return (
     <>
-    <Button onClick={showModal} disabled={disabled}>{tituloDragable()}</Button>
+    <Button style={{fontSize:"8px"}} onClick={showModal} disabled={disabled}>{tituloDragable()}</Button>
 
 <Modal
   title={

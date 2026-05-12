@@ -75,7 +75,11 @@ export default function OrdenDetalle() {
   const Phone1 = dat.Phone1;
   const DocNum =
     String(datos_state.pedido.DocNum) === "N/A" ? 0 : datos_state.pedido.DocNum;
-
+  const fecha = new Date();
+  const fechaGT = fecha.toLocaleDateString('en-CA', {
+  timeZone: 'America/Guatemala'
+  });
+  console.log('fechaGT',fechaGT)
   // ======================
   // API CALLS
   // ======================
@@ -313,8 +317,8 @@ export default function OrdenDetalle() {
             U_OC: numeroPedido,
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
-            date_oc: orden.cliente.fecha_oc,
-
+            //date_oc: orden.cliente.fecha_oc,
+            date_oc:fechaGT,
             items: item.map((a) => {
               console.log("1", a);
               const cantidadFinal =
@@ -347,8 +351,8 @@ export default function OrdenDetalle() {
             U_OC: numeroPedido,
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
-            date_oc: orden.cliente.fecha_oc,
-
+            //date_oc: orden.cliente.fecha_oc,
+            date_oc:fechaGT,
             items: item.map((a) => {
               console.log("2", a);
               const cantidadFinal =

@@ -21,6 +21,7 @@ console.log('datossss',dato)
   const data = dato?.map((dato, index) => ({
     key: index,
     id: dato.id_oc,
+    messageId: dato.messageId,
     tienda: dato.nombre,
     DocNum: dato.DocNum,
     pedido: dato.numero_oc,
@@ -157,7 +158,18 @@ console.log('datas',data)
       key: 'factura',
       ...getColumnSearchProps('factura'),
       render: (_, record) => (
-          <Modal formulario='VerFacturaReserva' URL_PDF={record?.U_V3_FCE_Enlace} title={record?.U_V3_FCE_Enlace ? 'Ver factura' : 'Sin factura' }/>
+        <div
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+        fontSize:"8px"
+      }}
+    >
+      <Modal formulario='VerFacturaReserva' URL_PDF={record?.U_V3_FCE_Enlace} title={record?.U_V3_FCE_Enlace ? 'VER FACTURA' : 'SIN FACTURA' }/>
+    </div>
       )
     },
     
@@ -182,11 +194,19 @@ console.log('datas',data)
       ...getColumnSearchProps('cod_sap'),
     },
     {
+      title: <span style={{ color: "white" }}>ID_Email</span>,
+      dataIndex: 'messageId',
+      key: 'messageId',
+      ...getColumnSearchProps('messageId'),
+    },
+    {
       title: <span style={{fontSize:11, color: "white" }}>Estado</span>,
       key: 'tags',
       dataIndex: 'tags',
       render: tags => (
-        <Flex gap="small" align="center" wrap>
+        <Flex gap="small" align="center" wrap="wrap" style={{
+        maxWidth: "100%",
+      }}>
           {tags.map(tag => {
             const key = tag?.toLowerCase().trim();
             let color = 'default';
@@ -197,7 +217,17 @@ console.log('datas',data)
             else if (key === 'pendiente') color = 'warning';
 
             return (
-              <Tag key={tag} color={color} style={{ borderRadius: "6px", padding: "2px 8px" }}>
+              <Tag  key={tag}
+            color={color}
+            style={{
+              borderRadius: "6px",
+              padding: "2px 8px",
+              whiteSpace: "normal",
+              wordBreak: "break-word",
+              textAlign: "center",
+              maxWidth: "100%",
+              fontSize:"8px"
+            }}>
                 {tag?.toUpperCase()}
               </Tag>
             );

@@ -105,7 +105,7 @@ const ItemCode = () => {
           placeholder='Cliente' 
           onChange={setTienda}
         />
-          <Modal socioDeNegocio={clientes} formulario='itemCode'/>
+          <Modal socioDeNegocio={clientes} formulario='itemCode' title='Crear articulo'/>
       </div>
 
       {/* TABLA */}
