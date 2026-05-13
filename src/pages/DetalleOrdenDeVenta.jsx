@@ -36,7 +36,7 @@ export default function OrdenDetalle() {
   const [WhsCodeor, setWhsCode] = useState(
     datos_state?.pedido?.para_tienda == "006 Xela" ? "Bodega65" : "Bodega99",
   );
-  const [tipoDoc, setTipoDocumento] = useState("oc");
+  const [tipoDoc, setTipoDocumento] = useState("fr");
   const [disponible_bodega, setDisponible_bodega] = useState({});
   const [cantidades, setCantidades] = useState({});
   const [nueva_cantidad, setNueva_cantidad] = useState(0);
