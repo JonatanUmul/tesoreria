@@ -5,7 +5,6 @@ import { Button, Input, Space, Table, Tag, Flex } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
 import { formatFecha } from '../services/FormatearFecta';
-import imprimirDocumento from '../components/imprimirDocumento'
 import Modal from "./Modal"
 import ButtonCustom from './ButtonCustom';
 const App = ({ dato }) => {
@@ -191,7 +190,6 @@ console.log('datas',data)
         fontSize:"8px"
       }}
     >
-      <ButtonCustom icon={<PrinterOutlined />} disabled={record?.U_V3_FCE_Enlace ? true : false} onClick={()=>imprimirDocumento(record.U_V3_FCE_Enlace)}></ButtonCustom>
     </div>
       )
     },
