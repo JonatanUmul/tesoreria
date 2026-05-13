@@ -710,7 +710,7 @@ export default function OrdenDetalle() {
                       </td>
                       <td className="py-2">{a.d_sku_cliente}</td>
                       <td className="py-2">{a.d_sku_ecofiltro}</td>
-                      <td>{a.d_descripcion_cliente}</td>
+                      <td>{a.d_descripcion_ecofiltro}</td>
                       <td style={{ textAlign: "center" }}>{WhsCodeor}</td>
                       <td
                         className="font-semibold w-1/2 flex"
