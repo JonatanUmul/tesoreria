@@ -9,6 +9,7 @@ import Alert from "../components/Alert.jsx";
 import Fecha from "../components/fechas.jsx";
 import Input from "../components/Input.jsx";
 import { formatFecha } from '../services/FormatearFecta.js';
+import { useNavigate } from "react-router-dom";
 
 const FormDisabledDemo = () => {
 
@@ -16,7 +17,7 @@ const FormDisabledDemo = () => {
   const id_mail = localStorage.getItem('id_e');
   const f_inicio = localStorage.getItem('f_inicio');
   const f_fin = localStorage.getItem('f_fin');
-
+  const navigate = useNavigate();
   const [datos, setDatos] = useState([]);
   const [opcion, setOpcion] = useState(op);
   const [alert, SetAlert] = useState({});
@@ -89,7 +90,9 @@ const FormDisabledDemo = () => {
   const updateUrlFact = async()=>{
         try {
         const response= await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
-
+        setTimeout(() => {
+        navigate("/h2h/OrdenDeVenta");
+      }, 1000);
         console.log("Webhook ejecutado correctamente", response);
       } catch (error) {
         console.error("Error ejecutando webhook:", error);
