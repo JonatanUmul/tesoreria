@@ -90,9 +90,6 @@ console.log('URL_PDF',URL_PDF)
        case "socioNegocio":
           setDisabled(false)
         break;
-        case "updateItemCode":
-          setDisabled(false)
-        break;
       default:
         return null;
     }
@@ -120,15 +117,16 @@ useEffect(()=>{
   onCancel={handleCancel}
   footer={null}
   maskClosable={false}
-  centered
   width="75vw"
+  style={{ top: 20 }}
   styles={{
     content: {
       padding: 10,
     },
     body: {
-      height: "75vh",
-      overflow: "hidden",
+      maxHeight: "75vh",
+      overflowY: "auto",
+      overflowX: "hidden",
       padding: 0,
     },
   }}
