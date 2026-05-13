@@ -464,9 +464,9 @@ export default function OrdenDetalle() {
       //const U_V3_FCE_Enlace = 'https://report.feel.com.gt/ingfacereport/ingfacereport_documento?uuid=7D1B95DC-0022-43B2-B5D0-E3F40E5C543A';
       const DocNum = response?.data[0]?.data?.DocNum;
       updateDocNumOrder(payload?.id, DocNum, tipoDocumento, U_V3_FCE_Enlace);
-     /* setTimeout(() => {
+     setTimeout(() => {
         navigate("/h2h/OrdenDeVenta");
-      }, 1000);*/
+      }, 1000);
     }
   };
   const handleDeleteItem = async (model) => {
