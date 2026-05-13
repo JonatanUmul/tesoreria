@@ -3,6 +3,7 @@ import axios from 'axios';
 import ButtonCustom from '../components/ButtonCustom';
 import TableOrdenesDeVenta from '../components/TablaOrdenesDeVenta';
 import pedidoHeaderCompleto from '../services/pedidoHeaderCompleto';
+import { pedidoDetalleEstadoCompleto } from "../services/pedidoDetalleCompleto";
 import SelectReusable from '../components/Select';
 import { runWorkflowItemCode } from '../services/itemCode.service';
 import Alert from "../components/Alert.jsx";
@@ -10,7 +11,7 @@ import Fecha from "../components/fechas.jsx";
 import Input from "../components/Input.jsx";
 import { formatFecha } from '../services/FormatearFecta.js';
 import { useNavigate } from "react-router-dom";
-
+import ExcelDowloan from '../components/ExcelDowloan.jsx';
 const FormDisabledDemo = () => {
 
   const op = localStorage.getItem('o') || 'orden de venta';
@@ -23,6 +24,7 @@ const FormDisabledDemo = () => {
   const [alert, SetAlert] = useState({});
   const [loading, setLoading] = useState(false);
   const [valueInput, setValueInput] = useState('');
+  const [detallePedido, setDetallePedido] = useState([])
   const [filtros, setFiltros] = useState({
     op: op,
     id_email: id_mail,
@@ -31,7 +33,7 @@ const FormDisabledDemo = () => {
   });
 
   const data = Array.isArray(datos) ? datos : [];
-
+  console.log('detalle123',detallePedido)
   // =========================
   // OBTENER DATA
   // =========================
@@ -58,6 +60,20 @@ const FormDisabledDemo = () => {
 
     } finally {
       setLoading(false);
+    }
+  };
+
+    const detalleOrdenDeVenta = async () => {
+    try {
+      const response = await pedidoDetalleEstadoCompleto(filtros.op );
+      setDetallePedido(response);
+    } catch (error) {
+      console.log('error123',error)
+        SetAlert({
+        ok: true,
+        tipo: "info",
+        text: error
+      });
     }
   };
 
@@ -172,6 +188,10 @@ const FormDisabledDemo = () => {
   useEffect(()=>{
     get_Data_OV()
   },[])
+
+  useEffect(()=>{
+    detalleOrdenDeVenta()
+  },[opcion])
   return (
 
     <div
@@ -242,7 +262,9 @@ const FormDisabledDemo = () => {
           onClick={updateUrlFact}
 
         />
-
+         <div className="col-md-3 d-flex align-items-end">
+ <ExcelDowloan datos={detallePedido}/>
+        </div>
       </div>
 
       {/* ALERT */}
@@ -257,7 +279,7 @@ const FormDisabledDemo = () => {
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
         }}
       >
-
+       
         <TableOrdenesDeVenta dato={data} />
 
       </div>

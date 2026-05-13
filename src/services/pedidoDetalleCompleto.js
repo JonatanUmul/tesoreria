@@ -1,17 +1,28 @@
 import axios from "axios";
+import {pedidoDetalleEstadoComplet} from "../api/orders.api.js"
 const URL = import.meta.env.VITE_API_URL;
-const pedidoDetalleCompleto = async(numeroPedido) => {
+
+export const pedidoDetalleCompleto = async(numeroPedido) => {
 
     try {
         const response= await axios.get(`${URL}/orders/orderNumber`,
             {params:numeroPedido}
         )
-        console.log('respuesta preciso',response)
         return response
     } catch (error) {
         console.log('error12',error.response.data.message)
-       return error?.response?.data
+       //return error?.response?.data
+        return { ok: false, message: "Error ejecutando workflow" };
     }
 }
 
-export default pedidoDetalleCompleto
+export const pedidoDetalleEstadoCompleto = async(estado)=>{
+    try {
+        const response = await pedidoDetalleEstadoComplet(estado)
+        return response
+    } catch (error) {
+        return { ok: false, message: "Error al obtener detalles de ordenes" };
+    }
+}
+
+

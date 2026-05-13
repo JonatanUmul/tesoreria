@@ -3,7 +3,7 @@ import { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation, Await, Navigate } from "react-router-dom";
 import { get_Disponibilidad_Bodega_sl } from "../services/get_Disponibilidad_Bodega_sl.js";
 import getBusinessPartnersSL from "../services/BusinessPartners_sl.js";
-import pedidoDetalleCompleto from "../services/pedidoDetalleCompleto.js";
+import {pedidoDetalleCompleto} from "../services/pedidoDetalleCompleto.js";
 import ButtonCustom from "../components/ButtonCustom.jsx";
 import Select from "../components/Select.jsx";
 import creacionDocumentoSap from "../services/creacionDocumentoSap.js";
@@ -23,6 +23,7 @@ import Modal from "../components/Modal.jsx";
 import { UserContext } from "../context/user.context.jsx";
 import Confirm from "../components/Confirm";
 import axios from "axios";
+import ExcelDowloan from "../components/ExcelDowloan.jsx";
 export default function OrdenDetalle() {
   const navigate = useNavigate();
   const location = useLocation();

@@ -7,3 +7,9 @@ export const UpdateDocNumOrder = async(id, DocNum, tipoDocumento, U_V3_FCE_Enlac
         params: {id, DocNum, tipoDocumento, U_V3_FCE_Enlace}
     })
 }
+
+export const pedidoDetalleEstadoComplet = async(estado) =>{
+    return axios.get("/orders/orderStatus",
+        {params:{estado}}
+    )
+}
