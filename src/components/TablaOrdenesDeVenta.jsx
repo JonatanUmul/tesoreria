@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './TablaOrdenesDeVenta.css';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, PrinterOutlined } from '@ant-design/icons';
 import { Button, Input, Space, Table, Tag, Flex } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useNavigate } from 'react-router-dom';
 import { formatFecha } from '../services/FormatearFecta';
+import imprimirDocumento from '../components/imprimirDocumento'
 import Modal from "./Modal"
+import ButtonCustom from './ButtonCustom';
 const App = ({ dato }) => {
 
 console.log('datossss',dato)
@@ -170,6 +172,26 @@ console.log('datas',data)
       }}
     >
       <Modal formulario='VerFacturaReserva' URL_PDF={record?.U_V3_FCE_Enlace} title={record?.U_V3_FCE_Enlace ? 'VER FACTURA' : 'SIN FACTURA' }/>
+    </div>
+      )
+    },
+     {
+      title: <span style={{ color: "white" }}>Imprimir fac</span>,
+      dataIndex: 'Ver Factura',
+      key: 'factura',
+      ...getColumnSearchProps('factura'),
+      render: (_, record) => (
+        <div
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+        fontSize:"8px"
+      }}
+    >
+      <ButtonCustom icon={<PrinterOutlined />} disabled={record?.U_V3_FCE_Enlace ? true : false} onClick={()=>imprimirDocumento(record.U_V3_FCE_Enlace)}></ButtonCustom>
     </div>
       )
     },

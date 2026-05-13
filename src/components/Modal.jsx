@@ -120,13 +120,16 @@ useEffect(()=>{
   onCancel={handleCancel}
   footer={null}
   maskClosable={false}
-  style={{ top: 20 }}
-  width="90vw"
+  centered
+  width="75vw"
   styles={{
+    content: {
+      padding: 10,
+    },
     body: {
-      height: "80vh",
-      overflowY: "auto",
-      padding: 20,
+      height: "75vh",
+      overflow: "hidden",
+      padding: 0,
     },
   }}
   modalRender={(modal) => (
