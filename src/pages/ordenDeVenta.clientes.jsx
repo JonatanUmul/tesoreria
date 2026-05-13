@@ -151,8 +151,7 @@ const FormDisabledDemo = () => {
     localStorage.setItem('f_inicio', filtros.fechaInicio);
     localStorage.setItem('f_fin', filtros.fechaFin);
   }, [opcion, filtros]);
-  console.log('inicio',filtros.fechaInicio)
-  console.log('fin',filtros.fechaFin)
+ 
   //===========================
   //Usefect
   //===========================

@@ -460,7 +460,7 @@ export default function OrdenDetalle() {
       const tipoDocumento =
         tipoDoc == "oc" ? "orden de venta" : "factura de reserva";
       const U_V3_FCE_Enlace = response?.data[0].data?.U_V3_FCE_Enlace;
-      console.log("liea 390", U_V3_FCE_Enlace);
+      //const U_V3_FCE_Enlace = 'https://report.feel.com.gt/ingfacereport/ingfacereport_documento?uuid=7D1B95DC-0022-43B2-B5D0-E3F40E5C543A';
       const DocNum = response?.data[0]?.data?.DocNum;
       updateDocNumOrder(payload?.id, DocNum, tipoDocumento, U_V3_FCE_Enlace);
       setTimeout(() => {

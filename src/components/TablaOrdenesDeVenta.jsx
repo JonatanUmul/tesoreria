@@ -174,26 +174,7 @@ console.log('datas',data)
     </div>
       )
     },
-     {
-      title: <span style={{ color: "white" }}>Imprimir fac</span>,
-      dataIndex: 'Ver Factura',
-      key: 'factura',
-      ...getColumnSearchProps('factura'),
-      render: (_, record) => (
-        <div
-      style={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        overflow: "hidden",
-        fontSize:"8px"
-      }}
-    >
-    </div>
-      )
-    },
-    
+
     {
       title: <span style={{ color: "white" }}>Tienda</span>,
       dataIndex: 'tienda',
