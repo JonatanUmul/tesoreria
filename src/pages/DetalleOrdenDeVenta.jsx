@@ -22,6 +22,7 @@ import {
 import Modal from "../components/Modal.jsx";
 import { UserContext } from "../context/user.context.jsx";
 import Confirm from "../components/Confirm";
+import axios from "axios";
 export default function OrdenDetalle() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -76,10 +77,10 @@ export default function OrdenDetalle() {
   const DocNum =
     String(datos_state.pedido.DocNum) === "N/A" ? 0 : datos_state.pedido.DocNum;
   const fecha = new Date();
-  const fechaGT = fecha.toLocaleDateString('en-CA', {
-  timeZone: 'America/Guatemala'
+  const fechaGT = fecha.toLocaleDateString("en-CA", {
+    timeZone: "America/Guatemala",
   });
-  console.log('fechaGT',fechaGT)
+  console.log("fechaGT", fechaGT);
   // ======================
   // API CALLS
   // ======================
@@ -318,7 +319,7 @@ export default function OrdenDetalle() {
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
             //date_oc: orden.cliente.fecha_oc,
-            date_oc:fechaGT,
+            date_oc: fechaGT,
             items: item.map((a) => {
               console.log("1", a);
               const cantidadFinal =
@@ -352,7 +353,7 @@ export default function OrdenDetalle() {
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
             //date_oc: orden.cliente.fecha_oc,
-            date_oc:fechaGT,
+            date_oc: fechaGT,
             items: item.map((a) => {
               console.log("2", a);
               const cantidadFinal =
@@ -451,6 +452,14 @@ export default function OrdenDetalle() {
         contents: respuesta.message,
         durations: 5,
       });
+      
+      try {
+        await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
+
+        console.log("Webhook ejecutado correctamente");
+      } catch (error) {
+        console.error("Error ejecutando webhook:", error);
+      }
       //put_pedidoHeaderCompleto_OV({id:datos_state.pedido.id, ordenDeVenta:datos_state.pedido.pedido, DocNum: response[3].DocNum});
       SetAlert({
         ok: respuesta.ok,
@@ -460,11 +469,10 @@ export default function OrdenDetalle() {
       const tipoDocumento =
         tipoDoc == "oc" ? "orden de venta" : "factura de reserva";
       const U_V3_FCE_Enlace = response?.data[0].data?.U_V3_FCE_Enlace;
-      console.log('response de sap',response?.data[0])
       //const U_V3_FCE_Enlace = 'https://report.feel.com.gt/ingfacereport/ingfacereport_documento?uuid=7D1B95DC-0022-43B2-B5D0-E3F40E5C543A';
       const DocNum = response?.data[0]?.data?.DocNum;
       updateDocNumOrder(payload?.id, DocNum, tipoDocumento, U_V3_FCE_Enlace);
-     setTimeout(() => {
+      setTimeout(() => {
         navigate("/h2h/OrdenDeVenta");
       }, 1000);
     }

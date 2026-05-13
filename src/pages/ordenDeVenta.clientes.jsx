@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import ButtonCustom from '../components/ButtonCustom';
 import TableOrdenesDeVenta from '../components/TablaOrdenesDeVenta';
 import pedidoHeaderCompleto from '../services/pedidoHeaderCompleto';
@@ -84,6 +85,16 @@ const FormDisabledDemo = () => {
 
     }
   };
+
+  const updateUrlFact = async()=>{
+        try {
+        const response= await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
+
+        console.log("Webhook ejecutado correctamente", response);
+      } catch (error) {
+        console.error("Error ejecutando webhook:", error);
+      }
+  }
 
   // =========================
   // OPTIONS SELECT
@@ -220,6 +231,12 @@ const FormDisabledDemo = () => {
           text={loading ? 'Buscando...' : 'Buscar'}
           disabled='false'
           onClick={Buscar}
+
+        />
+           <ButtonCustom
+          text={loading ? 'Actualizando...' : 'Actualizar factura'}
+          disabled='false'
+          onClick={updateUrlFact}
 
         />
 
