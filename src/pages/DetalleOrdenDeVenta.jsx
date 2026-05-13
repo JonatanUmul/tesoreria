@@ -452,7 +452,7 @@ export default function OrdenDetalle() {
         contents: respuesta.message,
         durations: 5,
       });
-      
+
       try {
         await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
 
@@ -610,7 +610,7 @@ export default function OrdenDetalle() {
           placeholder="Seleccione bodega"
           disabled={alert.ok}
           tooltip={alert.ok ? null : { msj: alert.text, ok: alert.ok }}
-          defaultValue="oc"
+          defaultValue="fr"
           options={tipoDocumento}
           onChange={setTipoDocumento}
         />
