@@ -71,6 +71,47 @@ console.log('URL_PDF',URL_PDF)
     }
   }
 
+  const modalConfig = () => {
+  switch (formulario) {
+    case "VerFacturaReserva":
+      return {
+        width: "98vw",
+        height: "92vh",
+      };
+
+    case "LogModificaciones":
+      return {
+        width: "85vw",
+        height: "80vh",
+      };
+
+    case "updateItemCode":
+      return {
+        width: "70vw",
+        height: "70vh",
+      };
+
+    case "itemCode":
+      return {
+        width: "60vw",
+        height: "65vh",
+      };
+
+    case "socioNegocio":
+      return {
+        width: "55vw",
+        height: "60vh",
+      };
+
+    default:
+      return {
+        width: "75vw",
+        height: "75vh",
+      };
+  }
+};
+
+const config = modalConfig();
   const disabledButton = () =>{
     switch (formulario) {
       case "itemCode":
@@ -103,9 +144,15 @@ useEffect(()=>{
     <Button style={{fontSize:"8px"}} onClick={showModal} disabled={disabled}>{tituloDragable()}</Button>
 
 <Modal
+  destroyOnClose
   title={
     <div
-      style={{ width: "100%", cursor: "move" }}
+      style={{
+        width: "100%",
+        cursor: "move",
+        fontWeight: "bold",
+        fontSize: "18px",
+      }}
       onMouseOver={() => setDisabled(false)}
       onMouseOut={() => setDisabled(true)}
     >
@@ -117,14 +164,17 @@ useEffect(()=>{
   onCancel={handleCancel}
   footer={null}
   maskClosable={false}
-  width="75vw"
-  style={{ top: 20 }}
+  width={config.width}
+  style={{
+    top: 10,
+  }}
   styles={{
     content: {
       padding: 10,
+      borderRadius: 10,
     },
     body: {
-      maxHeight: "75vh",
+      height: config.height,
       overflowY: "auto",
       overflowX: "hidden",
       padding: 0,
@@ -137,7 +187,9 @@ useEffect(()=>{
       nodeRef={draggleRef}
       onStart={(event, uiData) => onStart(event, uiData)}
     >
-      <div ref={draggleRef}>{modal}</div>
+      <div ref={draggleRef}>
+        {modal}
+      </div>
     </Draggable>
   )}
 >
