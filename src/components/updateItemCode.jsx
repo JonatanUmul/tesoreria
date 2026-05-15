@@ -5,6 +5,7 @@ import { fetchCrearSocioDeNegocio } from "../services/socioDeNegocio.service";
 import { updateItem, getItemcodeId } from "../services/itemCode.service";
 import Confirm from "../components/Confirm"
 import Alert from "./Alert";
+import SelectGrupoArticulo from "../components/Select"
 
 const { Option } = Select;
 
@@ -13,8 +14,11 @@ const FormSocioNegocio = ({ record, onSuccess }) => {
   const [form] = Form.useForm();
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const idItemCode = record?.id;
+  const grupoArticulo =[
+   {value:'suministro', label:'Suministro'},
+   {value:'productoTerminado', label:'Producto Terminado'}
+    ]
 
   //  Cargar datos actuales
   const loadItemCode = async () => {
@@ -23,7 +27,7 @@ const FormSocioNegocio = ({ record, onSuccess }) => {
 
       const response = await getItemcodeId(idItemCode);
       const data = response.data.data[0];
-
+      console.log(data)
       // LLENAR FORMULARIO (CLAVE)
       form.setFieldsValue({
         id: data.id,
@@ -32,6 +36,7 @@ const FormSocioNegocio = ({ record, onSuccess }) => {
         sku_cliente: data.sku_cliente || "",
         descripcion_cliente: data.descripcion_cliente,
         sku_ecofiltro: data.sku_ecofiltro,
+        grupoArticulo: data.grupoArticulo,
         descripcion_ecofiltro: data.descripcion_ecofiltro,
         estado: data.estado || "activo",
         precio_sinIva: data.precio_sinIva || 0,
@@ -138,6 +143,15 @@ const FormSocioNegocio = ({ record, onSuccess }) => {
         <Form.Item label="Sku Ecofiltro" name="sku_ecofiltro">
           <Input />
         </Form.Item>
+        <Form.Item label="Grupo de articulo" name="grupoArticulo" rules={[{ required: true, message: "Requerido" }]}>
+          <SelectGrupoArticulo 
+          options={grupoArticulo} 
+          disabled={false} 
+          placeholder='Grupo'
+          //onChange={setGrupo}
+          />
+        </Form.Item>
+        
 
         <Form.Item label="Descripción Ecofiltro" name="descripcion_ecofiltro">
           <Input />

@@ -5,14 +5,18 @@ import { fetchItemCode } from "../services/itemCode.service";
 import SelectSocioNegocio from '../components/Select'
 import Confirm from "../components/Confirm"
 import Alert from "../components/Alert"
+import SelectGrupoArticulo from "../components/Select"
 
 const { Option } = Select;
 
 const FormItemCode = ({ socioDeNegocio, onSuccess }) => {
   console.log('sn',socioDeNegocio)
   const [form] = Form.useForm();
-    const [alert, SetAlert] = useState({});
-
+  const [alert, SetAlert] = useState({});
+  const grupoArticulo =[
+   {value:'suministro', label:'Suministro'},
+   {value:'productoTerminado', label:'Producto Terminado'}
+    ]
   const handleFinish = async (values) => {
     console.log(values)
     try {
@@ -90,7 +94,14 @@ const FormItemCode = ({ socioDeNegocio, onSuccess }) => {
         >
           <Input placeholder="Ej: ECO600000" />
         </Form.Item>
-
+        <Form.Item label="Grupo de articulo" name="grupoArticulo" rules={[{ required: true, message: "Requerido" }]}>
+          <SelectGrupoArticulo 
+          options={grupoArticulo} 
+          disabled={false} 
+          placeholder='Grupo'
+         // onChange={setGrupo}
+          />
+        </Form.Item>
         <Form.Item
           label="Descripción Ecofiltro"
           name="descripcion_ecofiltro"

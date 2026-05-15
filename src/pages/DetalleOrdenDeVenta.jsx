@@ -53,6 +53,7 @@ export default function OrdenDetalle() {
   const [logModificaciones, setLogDeModificaciones] = useState({});
   const [openLog, setOpenLog] = useState(false);
   const [GroupNumber, setgroupNumber] = useState({});
+  const [bodegasPorItem, setBodegasPorItem] = useState({});
   const [paymentTermsTypes, setPaymentTermsTypes] = useState({
     creditoDays: "",
     creditoDaysNumbers: 0,
@@ -65,6 +66,7 @@ export default function OrdenDetalle() {
   // Variables
   // ======================
   const options = [
+    { value: "Bodega01", label: "Bodega01" },
     { value: "Bodega04", label: "Bodega04" },
     { value: "Bodega05", label: "Bodega05" },
     { value: "Bodega10", label: "Bodega10" },
@@ -229,36 +231,39 @@ export default function OrdenDetalle() {
   const fechaVencimiento = async () => {
     try {
       const PaymentTermsTypes = await getPaymentTermsTypes(GroupNumber);
-      const dias = Number(PaymentTermsTypes.data[0].data.NumberOfAdditionalDays);
-      const dias_credito_letras = PaymentTermsTypes.data[0].data.PaymentTermsGroupName;
-      console.log('123',typeof dias)
+      const dias = Number(
+        PaymentTermsTypes.data[0].data.NumberOfAdditionalDays,
+      );
+      const dias_credito_letras =
+        PaymentTermsTypes.data[0].data.PaymentTermsGroupName;
+      console.log("123", typeof dias);
       //const hoy = new Date();
       if (dias > 0) {
         let hoy = fechaGT;
         const fechaFinal = new Date(hoy);
         fechaFinal.setDate(fechaFinal.getDate() + dias);
-        const fecha_fin=fechaFinal.toISOString().split("T")[0]
+        const fecha_fin = fechaFinal.toISOString().split("T")[0];
         setPaymentTermsTypes({
           creditoDays: dias_credito_letras,
-          creditoDaysNumbers:dias,
-          fechaVencimiento : fecha_fin,
-          fechaContabilizacion : hoy,
-          fechaDocumento : hoy,
-          date_oc : hoy
-        })
-      }else{
+          creditoDaysNumbers: dias,
+          fechaVencimiento: fecha_fin,
+          fechaContabilizacion: hoy,
+          fechaDocumento: hoy,
+          date_oc: hoy,
+        });
+      } else {
         let hoy = fechaGT;
         setPaymentTermsTypes({
-          creditoDays:dias_credito_letras,
-          creditoDaysNumbers:dias,
-          fechaVencimiento : hoy,
-          fechaContabilizacion : hoy,
-          fechaDocumento : hoy,
-          date_oc : hoy
-        })
+          creditoDays: dias_credito_letras,
+          creditoDaysNumbers: dias,
+          fechaVencimiento: hoy,
+          fechaContabilizacion: hoy,
+          fechaDocumento: hoy,
+          date_oc: hoy,
+        });
       }
     } catch (error) {
-     /* SetAlert({
+      /* SetAlert({
         ok: !error.response.data.ok,
         tipo: "warning",
         text: error.response.data.message,
@@ -330,6 +335,12 @@ export default function OrdenDetalle() {
   // ======================
   //FUNCIONES
   // ======================
+  const cambiarBodegaItem = (modelo, bodega) => {
+    setBodegasPorItem((prev) => ({
+      ...prev,
+      [modelo]: bodega,
+    }));
+  };
   const cambiarCantidad = (e, modelo, d_cantidad) => {
     const nuevaCantidad = e.target.value;
     setNueva_cantidad(nuevaCantidad);
@@ -377,8 +388,8 @@ export default function OrdenDetalle() {
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
             date_oc: paymentTermsTypes.date_oc,
-            TaxDate:paymentTermsTypes.fechaDocumento,
-            DocDueDate:paymentTermsTypes.fechaVencimiento,
+            TaxDate: paymentTermsTypes.fechaDocumento,
+            DocDueDate: paymentTermsTypes.fechaVencimiento,
             DocDate: paymentTermsTypes.fechaDocumento,
             PayTermsGrpCode: dat.PayTermsGrpCode,
             items: item.map((a) => {
@@ -386,6 +397,9 @@ export default function OrdenDetalle() {
                 cantidades[a.d_sku_ecofiltro] ?? a.d_cantidad;
               return {
                 modelo: a.d_sku_ecofiltro,
+                bodega:
+                  bodegasPorItem[a.d_sku_ecofiltro] ??
+                  (a.grupoArticulo === "suministro" ? "Bodega01" : WhsCodeor),
                 descripcion: a.descripcion_ecofiltro,
                 cantidad: cantidadFinal,
                 precio: Number(a.d_precio_unitario_sinIva).toFixed(5),
@@ -413,8 +427,8 @@ export default function OrdenDetalle() {
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
             date_oc: paymentTermsTypes.date_oc,
-            TaxDate:paymentTermsTypes.fechaDocumento,
-            DocDueDate:paymentTermsTypes.fechaVencimiento,
+            TaxDate: paymentTermsTypes.fechaDocumento,
+            DocDueDate: paymentTermsTypes.fechaVencimiento,
             DocDate: paymentTermsTypes.fechaDocumento,
             PayTermsGrpCode: dat.PayTermsGrpCode,
             items: item.map((a) => {
@@ -423,6 +437,9 @@ export default function OrdenDetalle() {
                 cantidades[a.d_sku_ecofiltro] ?? a.d_cantidad;
               return {
                 modelo: a.d_sku_ecofiltro,
+                bodega:
+                  bodegasPorItem[a.d_sku_ecofiltro] ??
+                  (a.grupoArticulo === "suministro" ? "Bodega01" : WhsCodeor),
                 descripcion: a.descripcion_ecofiltro,
                 cantidad: cantidadFinal,
                 precio: Number(a.d_precio_unitario_sinIva).toFixed(5),
@@ -684,7 +701,8 @@ export default function OrdenDetalle() {
           <strong>Condiciones de pago: </strong> {paymentTermsTypes.creditoDays}
         </p>
         <p>
-          <strong>Días Número:</strong>{paymentTermsTypes.creditoDaysNumbers}
+          <strong>Días Número:</strong>
+          {paymentTermsTypes.creditoDaysNumbers}
         </p>
         <Select
           placeholder="Seleccione bodega"
@@ -774,6 +792,7 @@ export default function OrdenDetalle() {
                     <th className="py-2">sku cliente</th>
                     <th className="py-2">sku ecofiltro</th>
                     <th style={{ textAlign: "center" }}>Descripción</th>
+                    <th style={{ textAlign: "center" }}>Grupo</th>
                     <th style={{ textAlign: "center" }}>Bodega</th>
                     <th style={{ textAlign: "center" }}>En stock</th>
                     <th style={{ textAlign: "center" }}>Comprometido</th>
@@ -800,7 +819,32 @@ export default function OrdenDetalle() {
                       <td className="py-2">{a.d_sku_cliente}</td>
                       <td className="py-2">{a.d_sku_ecofiltro}</td>
                       <td>{a.d_descripcion_ecofiltro}</td>
-                      <td style={{ textAlign: "center" }}>{WhsCodeor}</td>
+                      <td>{a.grupoArticulo}</td>
+                      <td style={{ textAlign: "center"}}>
+                        <select
+                          value={
+                            bodegasPorItem[a.d_sku_ecofiltro] ??
+                            (a.grupoArticulo === "suministro"
+                              ? "Bodega01"
+                              : WhsCodeor)
+                          }
+                          onChange={(e) =>
+                            cambiarBodegaItem(a.d_sku_ecofiltro, e.target.value)
+                          }
+                          style={{
+                            padding: 4,
+                            borderRadius: 6,
+                            border: "1px solid #d9d9d9",
+                            background:"#fff"
+                          }}
+                        >
+                          {options.map((op) => (
+                            <option key={op.value} value={op.value}>
+                              {op.label}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
                       <td
                         className="font-semibold w-1/2 flex"
                         style={{
