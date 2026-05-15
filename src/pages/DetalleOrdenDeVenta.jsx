@@ -2,8 +2,11 @@
 import { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation, Await, Navigate } from "react-router-dom";
 import { get_Disponibilidad_Bodega_sl } from "../services/get_Disponibilidad_Bodega_sl.js";
-import getBusinessPartnersSL from "../services/BusinessPartners_sl.js";
-import {pedidoDetalleCompleto} from "../services/pedidoDetalleCompleto.js";
+import {
+  getBusinessPartnersSL,
+  getPaymentTermsTypes,
+} from "../services/BusinessPartners_sl.service.js";
+import { pedidoDetalleCompleto } from "../services/pedidoDetalleCompleto.js";
 import ButtonCustom from "../components/ButtonCustom.jsx";
 import Select from "../components/Select.jsx";
 import creacionDocumentoSap from "../services/creacionDocumentoSap.js";
@@ -21,9 +24,9 @@ import {
 } from "../services/logDeModificaciones.service.js";
 import Modal from "../components/Modal.jsx";
 import { UserContext } from "../context/user.context.jsx";
-import Confirm from "../components/Confirm";
+import { formatFecha } from "../services/FormatearFecta.js";
 import axios from "axios";
-import ExcelDowloan from "../components/ExcelDowloan.jsx";
+
 export default function OrdenDetalle() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +52,15 @@ export default function OrdenDetalle() {
   const [centroDeCostos, setCentrosDeCostos] = useState({});
   const [logModificaciones, setLogDeModificaciones] = useState({});
   const [openLog, setOpenLog] = useState(false);
-
+  const [GroupNumber, setgroupNumber] = useState({});
+  const [paymentTermsTypes, setPaymentTermsTypes] = useState({
+    creditoDays: "",
+    creditoDaysNumbers: 0,
+    fechaVencimiento: "",
+    fechaContabilizacion: "",
+    fechaDocumento: "",
+    date_oc: "",
+  });
   // ======================
   // Variables
   // ======================
@@ -81,7 +92,7 @@ export default function OrdenDetalle() {
   const fechaGT = fecha.toLocaleDateString("en-CA", {
     timeZone: "America/Guatemala",
   });
-  console.log("fechaGT", fechaGT);
+  //console.log('fechaGT',GroupNumber)
   // ======================
   // API CALLS
   // ======================
@@ -100,11 +111,13 @@ export default function OrdenDetalle() {
 
     if (respuesta.ok) {
       const objectBP = businessPartners?.data?.data;
+      console.log("objectBP", objectBP);
       SetAlert({
         ok: !respuesta.ok,
         tipo: "info",
         text: respuesta.message,
       });
+      setgroupNumber(objectBP.PayTermsGrpCode);
       setDatos((prev) => ({
         ...prev,
         AdditionalID: objectBP.AdditionalID,
@@ -117,6 +130,7 @@ export default function OrdenDetalle() {
         MailAddress: objectBP.MailAddress,
         Notes: objectBP.Notes,
         Phone1: objectBP.Phone1,
+        PayTermsGrpCode: objectBP.PayTermsGrpCode,
       }));
     } else {
       SetAlert({
@@ -212,9 +226,48 @@ export default function OrdenDetalle() {
     }
   };
 
+  const fechaVencimiento = async () => {
+    try {
+      const PaymentTermsTypes = await getPaymentTermsTypes(GroupNumber);
+      const dias = Number(PaymentTermsTypes.data[0].data.NumberOfAdditionalDays);
+      const dias_credito_letras = PaymentTermsTypes.data[0].data.PaymentTermsGroupName;
+      console.log('123',typeof dias)
+      //const hoy = new Date();
+      if (dias > 0) {
+        let hoy = fechaGT;
+        const fechaFinal = new Date(hoy);
+        fechaFinal.setDate(fechaFinal.getDate() + dias);
+        const fecha_fin=fechaFinal.toISOString().split("T")[0]
+        setPaymentTermsTypes({
+          creditoDays: dias_credito_letras,
+          creditoDaysNumbers:dias,
+          fechaVencimiento : fecha_fin,
+          fechaContabilizacion : hoy,
+          fechaDocumento : hoy,
+          date_oc : hoy
+        })
+      }else{
+        let hoy = fechaGT;
+        setPaymentTermsTypes({
+          creditoDays:dias_credito_letras,
+          creditoDaysNumbers:dias,
+          fechaVencimiento : hoy,
+          fechaContabilizacion : hoy,
+          fechaDocumento : hoy,
+          date_oc : hoy
+        })
+      }
+    } catch (error) {
+     /* SetAlert({
+        ok: !error.response.data.ok,
+        tipo: "warning",
+        text: error.response.data.message,
+      });*/
+    }
+  };
   // ======================
   // EFFECTS
-  // ======================
+  // ======================s
   // Cliente
   useEffect(() => {
     logDeModificaciones();
@@ -243,12 +296,16 @@ export default function OrdenDetalle() {
     });
   }, [item, WhsCodeor]);
 
+  useEffect(() => {
+    fechaVencimiento();
+  }, [GroupNumber, numeroPedido, dat.AdditionalID]);
   // ======================
   // NORMALIZACIÓN
   // ======================
   const orden = {
     cliente: {
       codigo_SAP: dat.CardCode,
+      PaymentReference: dat.CardPayTermsGrpCodeCode,
       AdditionalID: dat.AdditionalID,
       nombre: dat.CardName,
       telefono: dat.Phone1,
@@ -319,10 +376,12 @@ export default function OrdenDetalle() {
             U_OC: numeroPedido,
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
-            //date_oc: orden.cliente.fecha_oc,
-            date_oc: fechaGT,
+            date_oc: paymentTermsTypes.date_oc,
+            TaxDate:paymentTermsTypes.fechaDocumento,
+            DocDueDate:paymentTermsTypes.fechaVencimiento,
+            DocDate: paymentTermsTypes.fechaDocumento,
+            PayTermsGrpCode: dat.PayTermsGrpCode,
             items: item.map((a) => {
-              console.log("1", a);
               const cantidadFinal =
                 cantidades[a.d_sku_ecofiltro] ?? a.d_cantidad;
               return {
@@ -353,8 +412,11 @@ export default function OrdenDetalle() {
             U_OC: numeroPedido,
             U_Email: orden.cliente.Email,
             Phone1: Phone1,
-            //date_oc: orden.cliente.fecha_oc,
-            date_oc: fechaGT,
+            date_oc: paymentTermsTypes.date_oc,
+            TaxDate:paymentTermsTypes.fechaDocumento,
+            DocDueDate:paymentTermsTypes.fechaVencimiento,
+            DocDate: paymentTermsTypes.fechaDocumento,
+            PayTermsGrpCode: dat.PayTermsGrpCode,
             items: item.map((a) => {
               console.log("2", a);
               const cantidadFinal =
@@ -606,7 +668,24 @@ export default function OrdenDetalle() {
         <p>
           <strong>DocNum:</strong> {orden.cliente.DocNum}
         </p>
-
+        <p>
+          <strong>Fecha de contabilización:</strong>{" "}
+          {paymentTermsTypes.fechaContabilizacion}
+        </p>
+        <p>
+          <strong>Fecha de vencimiento:</strong>{" "}
+          {paymentTermsTypes.fechaVencimiento}
+        </p>
+        <p>
+          <strong>Fecha de documento:</strong>{" "}
+          {paymentTermsTypes.fechaDocumento}
+        </p>
+        <p>
+          <strong>Condiciones de pago: </strong> {paymentTermsTypes.creditoDays}
+        </p>
+        <p>
+          <strong>Días Número:</strong>{paymentTermsTypes.creditoDaysNumbers}
+        </p>
         <Select
           placeholder="Seleccione bodega"
           disabled={alert.ok}

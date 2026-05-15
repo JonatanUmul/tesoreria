@@ -7,7 +7,6 @@ export const postItemCode = async(values)=>{
 }
 
 export const itemCodeId = async(values)=>{
-    console.log('en api',values)
     return axios.get("/itemCode/id",{
         params: { values }
     })

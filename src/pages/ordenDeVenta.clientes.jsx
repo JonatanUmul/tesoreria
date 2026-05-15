@@ -77,6 +77,7 @@ const FormDisabledDemo = () => {
     }
   };
 
+
   // =========================
   // ACTUALIZAR ITEMS
   // =========================
@@ -189,9 +190,10 @@ const FormDisabledDemo = () => {
     get_Data_OV()
   },[])
 
+  
   useEffect(()=>{
     detalleOrdenDeVenta()
-  },[opcion])
+  },[opcion, filtros])
   return (
 
     <div

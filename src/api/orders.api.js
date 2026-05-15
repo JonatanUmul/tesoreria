@@ -13,3 +13,9 @@ export const pedidoDetalleEstadoComplet = async(estado) =>{
         {params:{estado}}
     )
 }
+
+export const getStatusInvoicesSap = async(DocNum) =>{
+    return axios.post("/sap/statusInvoinces",{
+        DocNum
+    })
+}

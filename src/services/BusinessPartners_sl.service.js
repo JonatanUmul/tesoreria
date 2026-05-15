@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getPaymentTermsTyp } from '../api/socioDeNegocio.api.js'
 
-const getBusinessPartnersSL = async ({socio_Negocio}) => {
+export const getBusinessPartnersSL = async ({socio_Negocio}) => {
     const URL= import.meta.env.VITE_API_URL || 'http://localhost:4000';
     try {
         const response = await axios.get(`${URL}/sap/business-partners`,{params:{socio_Negocio}});
@@ -13,5 +14,10 @@ const getBusinessPartnersSL = async ({socio_Negocio}) => {
     }
 }
 
-export default getBusinessPartnersSL;
+export const getPaymentTermsTypes = async(GroupNumber)=>{
+    console.log('GroupNumber_servidce',GroupNumber)
+    const res = await getPaymentTermsTyp(GroupNumber)
+    return res
+
+}
      

@@ -58,3 +58,10 @@ export const postEjecutarWorckFlow = async (value) => {
     };
   }
 };
+
+export const getPaymentTermsTyp = async (GroupNumber) => {
+  return axios.post("/sap/PaymentTermsTypes",{
+    GroupNumber
+  })
+
+}
