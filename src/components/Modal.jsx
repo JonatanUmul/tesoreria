@@ -8,9 +8,8 @@ import LeerUrlPdf from './LeerURL'
 import LogModificaciones from './LogModificaciones'
 
 const App = ({title, formulario, socioDeNegocio , record, get_socioNegocio, URL_PDF}) => { 
-console.log('URL_PDF',URL_PDF)
+
   const [open, setOpen] = useState(false);
-  console.log('entro aca: ',open)
   const [disabled, setDisabled] = useState(true);
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
   const draggleRef = useRef(null);

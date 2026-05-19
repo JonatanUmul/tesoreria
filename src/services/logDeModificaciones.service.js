@@ -7,6 +7,7 @@ export const fetchLogModificaicones = async(values) => {
 }
 
 export const postLogModificaicones = async(values) =>{
+    console.log('logggg',values)
     const res = await postLogModificaciones(values)
     return res
 }

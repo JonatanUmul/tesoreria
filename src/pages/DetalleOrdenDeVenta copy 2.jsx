@@ -6,10 +6,7 @@ import {
   getBusinessPartnersSL,
   getPaymentTermsTypes,
 } from "../services/BusinessPartners_sl.service.js";
-import {
-  pedidoDetalleCompleto,
-  updateCantidadDetalle,
-} from "../services/pedidoDetalleCompleto.js";
+import { pedidoDetalleCompleto, updateCantidadDetalle } from "../services/pedidoDetalleCompleto.js";
 import ButtonCustom from "../components/ButtonCustom.jsx";
 import Select from "../components/Select.jsx";
 import creacionDocumentoSap from "../services/creacionDocumentoSap.js";
@@ -343,48 +340,40 @@ export default function OrdenDetalle() {
       [modelo]: bodega,
     }));
   };
-  const cambiarCantidad = async (
-    e,
-    modelo,
-    d_cantidad,
-    id_detalle,
-    d_precio_unitario_conIva,
-    d_precio_unitario_sinIva,
-    d_numero_oc
-  ) => {
+  const cambiarCantidad =async (e, modelo, d_cantidad, id_detalle, a) => {
     const nuevaCantidad = e.target.value;
     setNueva_cantidad(nuevaCantidad);
-    console.log('aacaaaa',d_numero_oc)
-    const datos = {
-      cantidad: nuevaCantidad,
+    const datos={
+      cantidad: e.target.value,
       modelo: modelo,
-      id_detalle: id_detalle,
-      fecha_modificacion: fechaGT,
-      d_precio_unitario_conIva: d_precio_unitario_conIva,
-      d_precio_unitario_sinIva: d_precio_unitario_sinIva,
-    };
-
-   try {
-  const respuesta = await updateCantidadDetalle(datos);
-
-  SetAlert({
-    ok: true,
-    tipo: "success",
-    text: respuesta.data.message,
-  });
-
-} catch (error) {
-  SetAlert({
-    ok: 'true',
-    tipo: "error",
-    text:
-      error.response?.data?.message ||
-      "Ocurrió un error, la cantidad no puede ser <=0",
-  });
-}
+      id_detalle:id_detalle,
+      fecha_modificacion:fechaGT,
+      d_precio_unitario_conIva:a.d_precio_unitario_conIva,
+      d_precio_unitario_sinIva:a.d_precio_unitario_sinIva
+    }
+    try {
+        const respuesta = await updateCantidadDetalle(datos)
+        console.log('respuesta',respuesta.message)
+        if(respuesta.data.ok){
+                SetAlert({
+          ok: respuesta.data.ok,
+          tipo: "info",
+          text: respuesta.data.message,
+        })}
+      } catch (error) {
+       if(!respuesta.ok){
+           SetAlert({
+          ok: respuesta.ok,
+          tipo: "error",
+          text: respuesta.message,
+        })
+      } 
+      }
+      
+  
+    
 
     const cantidadAnterior = d_cantidad;
-    console.log('cantidadAnterior',cantidadAnterior)
     setCantidades((prev) => ({
       ...prev,
       [modelo]: Number(e.target.value),
@@ -393,22 +382,22 @@ export default function OrdenDetalle() {
     if (cantidadAnterior !== nuevaCantidad) {
       let cambio = {
         cantidad: {
-          antes: cantidadAnterior,
+          antes: d_cantidad,
           despues: nuevaCantidad,
         },
       };
-      
-      postLogModificaicones({
-        tabla: "orden_detalle_detalle",
-        tipo_operacion: "UPDATE",
-        id_registro: id_detalle,
-        referencia: d_numero_oc,
-        cambios: JSON.stringify(cambio),
-        usuario: userName,
-        origen: "WEB",
-      });
+      return cambio;
     }
 
+    postLogModificaicones({
+      tabla: "orden_detalle_detalle",
+      tipo_operacion: "UPDATE",
+      id_registro: 0,
+      referencia: numeroPedido,
+      cambios: JSON.stringify(cambio),
+      usuario: "system",
+      origen: "WEB",
+    });
   };
 
   const buildPayload = () => {
@@ -442,10 +431,8 @@ export default function OrdenDetalle() {
                   (a.grupoArticulo === "suministro" ? "Bodega01" : WhsCodeor),
                 descripcion: a.descripcion_ecofiltro,
                 cantidad: cantidadFinal,
-                precio:
-                  Math.round(a.d_precio_unitario_conIva * 1_000_000) /
-                  1_000_000,
-                // precio: Number(a.d_precio_unitario_sinIva).toFixed(5),
+                precio: (Math.round(a.d_precio_unitario_conIva * 1_000_000) / 1_000_000),
+               // precio: Number(a.d_precio_unitario_sinIva).toFixed(5),
                 total: Number(a.d_total_linea_sinIva).toFixed(5),
                 cc_departamento: orden.cliente.cc_departamento,
                 cc_canal: orden.cliente.cc_canal,
@@ -485,10 +472,8 @@ export default function OrdenDetalle() {
                   (a.grupoArticulo === "suministro" ? "Bodega01" : WhsCodeor),
                 descripcion: a.descripcion_ecofiltro,
                 cantidad: cantidadFinal,
-                // precio: (Math.round(a.d_precio_unitario_sinIva * 1_000_000) / 1_000_000),
-                precio:
-                  Math.round(a.d_precio_unitario_conIva * 1_000_000) /
-                  1_000_000,
+               // precio: (Math.round(a.d_precio_unitario_sinIva * 1_000_000) / 1_000_000),
+                precio: (Math.round(a.d_precio_unitario_conIva * 1_000_000) / 1_000_000),
                 //precio: Number(Number(a.d_precio_unitario_sinIva).toFixed(6)),
                 total: Number(Number(a.d_total_linea_sinIva).toFixed(6)),
                 cc_departamento: orden.cliente.cc_departamento,
@@ -579,7 +564,6 @@ export default function OrdenDetalle() {
         contents: respuesta.message,
         durations: 5,
       });
-      
 
       try {
         await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
@@ -594,7 +578,6 @@ export default function OrdenDetalle() {
         tipo: "success",
         text: `OV creado exitosamente: DocEntry: ${respuesta.data.DocEntry}, DocNum: ${respuesta.data.DocNum}`,
       });
-   
       const tipoDocumento =
         tipoDoc == "oc" ? "orden de venta" : "factura de reserva";
       const U_V3_FCE_Enlace = response?.data[0].data?.U_V3_FCE_Enlace;
@@ -635,7 +618,7 @@ export default function OrdenDetalle() {
     };
 
     await postLogModificaicones({
-      tabla: "orden_compra_detalle",
+      tabla: "orden_detalle",
       tipo_operacion: "DELETE",
       id_registro: model.id_detalle,
       referencia: numeroPedido,
@@ -869,7 +852,7 @@ export default function OrdenDetalle() {
                       <td className="py-2">{a.d_sku_ecofiltro}</td>
                       <td>{a.d_descripcion_ecofiltro}</td>
                       <td>{a.grupoArticulo}</td>
-                      <td style={{ textAlign: "center" }}>
+                      <td style={{ textAlign: "center"}}>
                         <select
                           value={
                             bodegasPorItem[a.d_sku_ecofiltro] ??
@@ -884,7 +867,7 @@ export default function OrdenDetalle() {
                             padding: 4,
                             borderRadius: 6,
                             border: "1px solid #d9d9d9",
-                            background: "#fff",
+                            background:"#fff"
                           }}
                         >
                           {options.map((op) => (
@@ -949,15 +932,7 @@ export default function OrdenDetalle() {
                           disabled={!DocNum || !DocNum == "-" ? false : true}
                           name="cantidad_mod w-auto"
                           onChange={(e) =>
-                            cambiarCantidad(
-                              e,
-                              a.d_sku_ecofiltro,
-                              a.d_cantidad,
-                              a.id_detalle,
-                              a.d_precio_unitario_conIva,
-                              a.d_precio_unitario_sinIva,
-                              a.d_numero_oc
-                            )
+                            cambiarCantidad(e, a.d_sku_ecofiltro, a.d_cantidad, a.id_detalle, a)
                           }
                           style={{
                             textAlign: "center",

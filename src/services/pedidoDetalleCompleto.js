@@ -1,5 +1,5 @@
 import axios from "axios";
-import {pedidoDetalleEstadoComplet} from "../api/orders.api.js"
+import {pedidoDetalleEstadoComplet, updateCantidadDeta} from "../api/orders.api.js"
 const URL = import.meta.env.VITE_API_URL;
 
 export const pedidoDetalleCompleto = async(numeroPedido) => {
@@ -26,3 +26,12 @@ export const pedidoDetalleEstadoCompleto = async(estado)=>{
 }
 
 
+export const updateCantidadDetalle = async(datos) =>{
+    console.log('12345as',datos)
+    try {
+        const response = await updateCantidadDeta(datos)
+        return response
+    } catch (error) {
+        return { ok: false, message: "Error al actualizar la cantidad" };
+    }
+}

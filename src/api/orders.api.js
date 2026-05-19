@@ -19,3 +19,9 @@ export const getStatusInvoicesSap = async(DocNum) =>{
         DocNum
     })
 }
+
+export const updateCantidadDeta = async(datos)=>{
+    return axios.put("/orders/updateCantidadDetalle",{
+        datos
+    })
+}
