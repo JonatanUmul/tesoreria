@@ -34,12 +34,12 @@ const MenuLayout = ({ children }) => {
   }}
 >
         <img
-    src={
+   /* src={
       collapsed
         ? "https://ecofiltro.com.gt/wp-content/uploads/2025/03/Azul-ecofiltro-scaled-e1755531179767.png"
         : "https://ecofiltro.com.gt/wp-content/uploads/2025/03/Azul-ecofiltro-scaled-e1755531179767.png"
-    }
-    alt="Ecofiltro"
+    }*/
+    /*alt="Ecofiltro"*/
     style={{
       width: collapsed ? 35 : 140,
       transition: "all 0.3s ease",

@@ -31,7 +31,7 @@ const FormDisabledDemo = () => {
     fechaInicio: f_inicio,
     fechaFin: f_fin
   });
-
+  console.log('opcion opcion',filtros.op)
   const data = Array.isArray(datos) ? datos : [];
   console.log('detalle123',detallePedido)
   // =========================
@@ -244,7 +244,7 @@ const FormDisabledDemo = () => {
           value={valueInput}
         />
 
-        <Fecha onDateChanges={HandleChanges} f_inicio={f_inicio} f_fin={f_fin}/>
+        <Fecha onDateChanges={HandleChanges} f_inicio={f_inicio} f_fin={f_fin} tittle={'Fecha Recpción OC'}/>
 
         {/* <ButtonCustom
           onClick={updateItems}

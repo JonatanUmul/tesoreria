@@ -507,6 +507,7 @@ export default function OrdenDetalle() {
   const updateDocNumOrder = async (
     id,
     DocNum,
+    DocEntry,
     tipoDocumento,
     U_V3_FCE_Enlace,
   ) => {
@@ -515,6 +516,7 @@ export default function OrdenDetalle() {
       const response = await updateUpdateDocNumOrder(
         id,
         DocNum,
+        DocEntry,
         tipoDocumento,
         U_V3_FCE_Enlace,
       );
@@ -583,10 +585,7 @@ export default function OrdenDetalle() {
 
       try {
         await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
-
-        console.log("Webhook ejecutado correctamente");
       } catch (error) {
-        console.error("Error ejecutando webhook:", error);
       }
       //put_pedidoHeaderCompleto_OV({id:datos_state.pedido.id, ordenDeVenta:datos_state.pedido.pedido, DocNum: response[3].DocNum});
       SetAlert({
@@ -600,10 +599,12 @@ export default function OrdenDetalle() {
       const U_V3_FCE_Enlace = response?.data[0].data?.U_V3_FCE_Enlace;
       //const U_V3_FCE_Enlace = 'https://report.feel.com.gt/ingfacereport/ingfacereport_documento?uuid=7D1B95DC-0022-43B2-B5D0-E3F40E5C543A';
       const DocNum = response?.data[0]?.data?.DocNum;
-      updateDocNumOrder(payload?.id, DocNum, tipoDocumento, U_V3_FCE_Enlace);
-      setTimeout(() => {
+      const DocEntry = response?.data[0]?.data?.DocEntry;
+      console.log('data4504851107',DocEntry)
+      updateDocNumOrder(payload?.id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace);
+      /*setTimeout(() => {
         navigate("/h2h/OrdenDeVenta");
-      }, 1000);
+      }, 1000);*/
     }
   };
   const handleDeleteItem = async (model) => {

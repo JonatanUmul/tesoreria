@@ -25,9 +25,9 @@ export const getsocios = async (  ) => {
 }
 
 
-export const updateUpdateDocNumOrder = async (id, DocNum, tipoDocumento, U_V3_FCE_Enlace) =>{
+export const updateUpdateDocNumOrder = async (id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace) =>{
     console.log('en service', U_V3_FCE_Enlace)
-   const res = await UpdateDocNumOrder(id, DocNum, tipoDocumento, U_V3_FCE_Enlace)
+   const res = await UpdateDocNumOrder(id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace)
    console.log(res)
 }
 
