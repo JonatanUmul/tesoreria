@@ -195,12 +195,12 @@ console.log('datas',data)
       width: '10%',
       ...getColumnSearchProps('cod_sap'),
     },
-    {
+    /*{
       title: <span style={{ color: "white" }}>ID_Email</span>,
       dataIndex: 'messageId',
       key: 'messageId',
       ...getColumnSearchProps('messageId'),
-    },
+    },*/
     {
       title: <span style={{fontSize:11, color: "white" }}>Estado</span>,
       key: 'tags',

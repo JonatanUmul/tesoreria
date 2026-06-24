@@ -236,14 +236,14 @@ const FormDisabledDemo = () => {
           onChange={handleEstado}
         />
 
-        <Input
+       {/* <Input
           defaulValue={id_mail}
           type="text"
           placeholder="Id_Email"
           handleChange={handleInput}
           value={valueInput}
         />
-
+ */}
         <Fecha onDateChanges={HandleChanges} f_inicio={f_inicio} f_fin={f_fin} tittle={'Fecha Recpción OC'}/>
 
         {/* <ButtonCustom
