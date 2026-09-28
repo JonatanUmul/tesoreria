@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import * as XLSX from "xlsx";
 import { Button, Modal, Table } from 'antd';
 import Draggable from 'react-draggable';
 const ExcelViewer = ({nameButton, file}) => {
@@ -10,17 +9,30 @@ const readExcel = () => {
 
   const reader = new FileReader();
   reader.onload = (e) => {
-    const arrayBuffer = e.target.result;
-    const workbook = XLSX.read(arrayBuffer, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-setData(jsonData);
+    const text = e.target.result || "";
+    const lines = text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
 
+    if (lines.length === 0) {
+      setData([]);
+      return;
+    }
 
-    if (jsonData.length > 0) setData(jsonData);
+    const separator = lines[0].includes("\t") ? "\t" : ",";
+    const headers = lines[0].split(separator).map((header) => header.trim());
+    const jsonData = lines.slice(1).map((line) => {
+      const values = line.split(separator);
+      return headers.reduce((row, header, index) => {
+        row[header || `Columna ${index + 1}`] = values[index] || "";
+        return row;
+      }, {});
+    });
+
+    setData(jsonData);
   };
-  reader.readAsArrayBuffer(file);
+  reader.readAsText(file);
 };
 
 
@@ -38,11 +50,9 @@ setData(jsonData);
     setOpen(true);
   };
   const handleOk = e => {
-    console.log(e);
     setOpen(false);
   };
   const handleCancel = e => {
-    console.log(e);
     setOpen(false);
   };
 

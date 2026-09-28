@@ -1,18 +1,17 @@
 import React from 'react';
 import { FileExcelOutlined } from "@ant-design/icons";
-import * as XLSX from 'xlsx'; // Importar todas las exportaciones de xlsx
 //import { formatFecha } from '../../../utilidades/FormatearFecta';
 
 const ExcelROTHP = ({ datos }) => {
-    console.log('excel',datos)
-    const dat = datos?.data?.data[0]
-  const generarExcel = () => {
-    // Crear una nueva hoja de cálculo de Excel
-    const wb = XLSX.utils.book_new();
+    const dat = datos?.data?.data?.[0] || [];
 
-    // Agregar los encabezados a los datos
-    const dataWithHeaders = [
-  ...dat.map(dato=>({
+  const escapeCsv = (value) => {
+    const text = value === null || value === undefined ? "" : String(value);
+    return `"${text.replace(/"/g, '""')}"`;
+  };
+
+  const generarExcel = () => {
+    const dataWithHeaders = dat.map(dato=>({
     fecha_oc:dato.fecha_oc,
     cardCode: dato.cardCode,
     DocNum: dato.DocNum,
@@ -23,18 +22,23 @@ const ExcelROTHP = ({ datos }) => {
     d_cantidad: dato.d_cantidad,
     d_precio_unitario_sinIva:dato.d_precio_unitario_sinIva,
     d_total_linea_sinIva:dato.d_total_linea_sinIva
-  }))
-    ];
+  }));
 
-    // Crear una nueva hoja en la hoja de cálculo de Excel
-    const ws = XLSX.utils.json_to_sheet(dataWithHeaders);
+    if (dataWithHeaders.length === 0) return;
 
-    // Agregar la hoja a la hoja de cálculo de Excel
-    XLSX.utils.book_append_sheet(wb, ws, 'Ordenes_Cadenas');
+    const headers = Object.keys(dataWithHeaders[0]);
+    const rows = dataWithHeaders.map((row) =>
+      headers.map((header) => escapeCsv(row[header])).join(",")
+    );
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
-    // Guardar el archivo Excel
-    const fileName = `Ordenes_Cadenas.xlsx`;
-    XLSX.writeFile(wb, fileName);
+    link.href = url;
+    link.download = "Ordenes_Cadenas.csv";
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (

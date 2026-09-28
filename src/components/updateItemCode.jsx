@@ -33,6 +33,7 @@ const FormSocioNegocio = ({ record, onSuccess }) => {
         id: data.id,
         cardCode: data.cardCode_cadena,
         cadena: data.name_cadena,
+        alias: data.alias,
         sku_cliente: data.sku_cliente || "",
         descripcion_cliente: data.descripcion_cliente,
         sku_ecofiltro: data.sku_ecofiltro,
@@ -127,6 +128,7 @@ const FormSocioNegocio = ({ record, onSuccess }) => {
         >
           <Input />
         </Form.Item>
+
 
         <Form.Item
           label="Sku Cliente"

@@ -4,11 +4,11 @@ import { Button, Flex, Input, Space, Table } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { ejecutarWorckFlow } from "../services/socioDeNegocio.service"
 import Alert from "../components/Alert.jsx"
-
+import Modal from "../components/Modal"
 
 
 const TablaSociosNegocios = ({datos}) => {
-
+console.log('data data',datos)
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
@@ -109,10 +109,13 @@ const TablaSociosNegocios = ({datos}) => {
       },
       {
       title: <span style={{ color: "white" }}>Nombre</span>,
-      dataIndex: 'nombre',
-      key: 'nombre',
+      dataIndex: 'alias',
+      key: 'alias',
       width: 150,
-      ...getColumnSearchProps('nombre')
+      ...getColumnSearchProps('alias'),
+      render:(texto, record)=>(
+       <Modal title={texto} record={record} formulario='sn_workflow'/>
+     )
       },
       {
       title: <span style={{ color: "white" }}>Departamento</span>,
@@ -149,7 +152,7 @@ const TablaSociosNegocios = ({datos}) => {
      width: 150,
      ...getColumnSearchProps('fecha_creacion'),
    },
-    {
+   /* {
      title: <span style={{ color: "white" }}>Workflow</span>,
      dataIndex: 'w_cadena',
      key: 'w_cadena',
@@ -171,13 +174,13 @@ const TablaSociosNegocios = ({datos}) => {
     {loadingId === record.cardCode ? "Procesando..." : "ejecutar"}
   </button>
 )
-   },
+   },*/
    
   ];
 
-const NameCadena = async (record) => {
+/*const NameCadena = async (record) => {
 
-  // 🔥 activar loading
+  //  activar loading
   setLoadingId(record.cardCode);
 
   SetAlert({
@@ -215,8 +218,9 @@ const NameCadena = async (record) => {
     // 🔥 quitar loading
     setLoadingId(null);
   }
-};
-  return (
+};*/
+ 
+return (
     <>
     {alert.ok ? <Alert alert={alert} /> : null}
     <Table

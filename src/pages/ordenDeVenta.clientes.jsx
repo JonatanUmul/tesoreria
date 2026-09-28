@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../api/axios.js';
 import ButtonCustom from '../components/ButtonCustom';
 import TableOrdenesDeVenta from '../components/TablaOrdenesDeVenta';
 import pedidoHeaderCompleto from '../services/pedidoHeaderCompleto';
@@ -31,9 +31,9 @@ const FormDisabledDemo = () => {
     fechaInicio: f_inicio,
     fechaFin: f_fin
   });
-  console.log('opcion opcion',filtros.op)
+
   const data = Array.isArray(datos) ? datos : [];
-  console.log('detalle123',detallePedido)
+
   // =========================
   // OBTENER DATA
   // =========================
@@ -106,7 +106,7 @@ const FormDisabledDemo = () => {
 
   const updateUrlFact = async()=>{
         try {
-        const response= await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
+        const response= await axios.post("/sap/refresh-invoice-url");
         setTimeout(() => {
         navigate("/h2h/OrdenDeVenta");
       }, 1000);

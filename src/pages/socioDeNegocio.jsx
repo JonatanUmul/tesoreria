@@ -14,12 +14,12 @@ const ItemCode = () => {
     const [dataSn, setDataSn] = useState([])
     const [open, setOpen] = useState(false);
     const [alert, SetAlert] = useState({});
-
+    console.log('datadatadata',data)
   const get_socioNegocio=async()=>{
     try {
       const respuesta = await fetchSocioDeNegocio(estado)
       console.log(respuesta)
-        setData(respuesta.data.data)
+        setData(respuesta?.data?.data)
         SetAlert({
         ok: respuesta.data.ok,
         tipo: "success",
@@ -36,6 +36,7 @@ const ItemCode = () => {
     //console.log('en fetchSocio Negocio',response)
     //setDataSn(respuesta)
   }
+
 
 
   useEffect(()=>{

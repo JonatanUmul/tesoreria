@@ -41,7 +41,7 @@ const ItemCode = () => {
         id: a.id,
         estado: a.estado,
         cardCode_cadena: a.cardCode_cadena,
-        name_cadena: a.name_cadena,
+        alias: a.alias,
         sku_cliente: a.sku_cliente,
         descripcion_cliente: a.descripcion_cliente,
         sku_ecofiltro: a.sku_ecofiltro,
@@ -58,7 +58,7 @@ const ItemCode = () => {
 
   const clientes=[
     Array.isArray(dataSn)&&dataSn.map(a=>(
-      {value:a.cardCode, label:a.nombre}
+      {value:a.cardCode, label:a.alias}
 
     ))
   ]

@@ -26,9 +26,8 @@ export const getsocios = async (  ) => {
 
 
 export const updateUpdateDocNumOrder = async (id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace) =>{
-    console.log('en service', U_V3_FCE_Enlace)
    const res = await UpdateDocNumOrder(id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace)
-   console.log(res)
+   return res.data
 }
 
 export const getStatusInvoicesInSap = async(DocNum) =>{
@@ -36,4 +35,3 @@ export const getStatusInvoicesInSap = async(DocNum) =>{
     const res = await getStatusInvoicesSap(DocNum)
     return res
 }
-

@@ -17,6 +17,10 @@ export function UserProvider({ children }) {
     JSON.parse(sessionStorage.getItem("userName")) || ""
   );
 
+  const [userToken, setUserToken] = React.useState(
+    JSON.parse(sessionStorage.getItem("userToken")) || ""
+  );
+
   const [userTelefono, setUserTelefono] = React.useState(
     JSON.parse(sessionStorage.getItem("userTelefono")) || ""
   );
@@ -34,15 +38,27 @@ export function UserProvider({ children }) {
 
   //  GUARDAR EN SESSION (cuando cambie)
   React.useEffect(() => {
-    if (userName) {
+    if (userName && userToken) {
       sessionStorage.setItem("userIsAdmin", JSON.stringify(userIsAdmin));
       sessionStorage.setItem("userIsRRHH", JSON.stringify(userIsRRHH));
       sessionStorage.setItem("userName", JSON.stringify(userName));
+      sessionStorage.setItem("userToken", JSON.stringify(userToken));
       sessionStorage.setItem("userId", JSON.stringify(userId));
       sessionStorage.setItem("codigos", JSON.stringify(codigos));
       sessionStorage.setItem("userTelefono", JSON.stringify(userTelefono));
     }
-  }, [userName, userIsAdmin, userIsRRHH, userId, codigos, userTelefono]);
+  }, [userName, userToken, userIsAdmin, userIsRRHH, userId, codigos, userTelefono]);
+
+  const logout = () => {
+    sessionStorage.clear();
+    setUserIsAdmin(null);
+    setUserIsRRHH(null);
+    setUserName("");
+    setUserToken("");
+    setUserTelefono("");
+    setUserId(0);
+    setCodigos([]);
+  };
 
   return (
     <UserContext.Provider
@@ -53,6 +69,8 @@ export function UserProvider({ children }) {
         setUserIsRRHH,
         userName,
         setUserName,
+        userToken,
+        setUserToken,
         userId,
         setUserId,
         codigos,
@@ -63,6 +81,7 @@ export function UserProvider({ children }) {
         setConfig,
         userTelefono,
         setUserTelefono,
+        logout,
       }}
     >
       {children}

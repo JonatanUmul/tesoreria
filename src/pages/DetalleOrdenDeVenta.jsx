@@ -1,6 +1,6 @@
 // pages/OrdenDetalle.jsx
 import { useEffect, useState, useContext } from "react";
-import { useNavigate, useLocation, Await, Navigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { get_Disponibilidad_Bodega_sl } from "../services/get_Disponibilidad_Bodega_sl.js";
 import {
   getBusinessPartnersSL,
@@ -27,21 +27,21 @@ import {
 } from "../services/logDeModificaciones.service.js";
 import Modal from "../components/Modal.jsx";
 import { UserContext } from "../context/user.context.jsx";
-import { formatFecha } from "../services/FormatearFecta.js";
-import axios from "axios";
+import axios from "../api/axios.js";
 
 export default function OrdenDetalle() {
   const navigate = useNavigate();
   const location = useLocation();
   const datos_state = location.state;
   const { userName } = useContext(UserContext);
+  const pedidoState = datos_state?.pedido;
   // ======================
   // STATES
   // ======================
   const [dat, setDatos] = useState({}); //Datos del socio de negocio
   const [detallePedido, setDetallePedido] = useState([]);
   const [WhsCodeor, setWhsCode] = useState(
-    datos_state?.pedido?.para_tienda == "006 Xela" ? "Bodega65" : "Bodega99",
+    pedidoState?.para_tienda == "006 Xela" ? "Bodega65" : "Bodega99",
   );
   const [tipoDoc, setTipoDocumento] = useState("fr");
   const [disponible_bodega, setDisponible_bodega] = useState({});
@@ -84,15 +84,15 @@ export default function OrdenDetalle() {
     { value: "fr", label: "Factura de reserva" },
   ];
 
-  const numeroPedido = datos_state?.pedido?.pedido;
-  const id = datos_state?.pedido?.id;
-  const socio_Negocio = datos_state?.pedido?.cod_sap || "";
-  const Tienda = datos_state?.pedido?.tienda || "";
-  const direccion_entrega = datos_state?.pedido?.direccion_entrega || "";
+  const numeroPedido = pedidoState?.pedido;
+  const id = pedidoState?.id;
+  const socio_Negocio = pedidoState?.cod_sap || "";
+  const Tienda = pedidoState?.tienda || "";
+  const direccion_entrega = pedidoState?.direccion_entrega || "";
   const U_FacNit = dat.AdditionalID;
   const Phone1 = dat.Phone1;
   const DocNum =
-    String(datos_state.pedido.DocNum) === "N/A" ? 0 : datos_state.pedido.DocNum;
+    String(pedidoState?.DocNum) === "N/A" ? 0 : pedidoState?.DocNum;
   const fecha = new Date();
   const fechaGT = fecha.toLocaleDateString("en-CA", {
     timeZone: "America/Guatemala",
@@ -149,14 +149,21 @@ export default function OrdenDetalle() {
     try {
       const response = await pedidoDetalleCompleto({ numeroPedido });
       setDetallePedido(response);
-    } catch (error) {}
+    } catch (error) {
+      SetAlert({
+        ok: true,
+        tipo: "error",
+        text: error?.response?.data?.message || "No fue posible obtener el detalle de la orden.",
+      });
+    }
   };
 
   const ConsultarDisponibilidad_sl = async (modelo) => {
     const response = await get_Disponibilidad_Bodega_sl(modelo, WhsCodeor);
+    const disponibilidad = response?.data?.[0] ?? response?.[0] ?? response;
     setDisponible_bodega((prev) => ({
       ...prev,
-      [modelo]: response?.data?.[0] ?? response,
+      [modelo]: disponibilidad,
     }));
   };
 
@@ -216,7 +223,7 @@ export default function OrdenDetalle() {
   };
 
   const logDeModificaciones = async () => {
-    let numeroPed = datos_state?.pedido?.pedido;
+    let numeroPed = pedidoState?.pedido;
     try {
       const response = await fetchLogModificaicones(numeroPed);
       setOpenLog(true);
@@ -277,9 +284,6 @@ export default function OrdenDetalle() {
   // ======================s
   // Cliente
   useEffect(() => {
-    logDeModificaciones();
-  }, [openLog]);
-  useEffect(() => {
     if (socio_Negocio) BusinessPartnersSL();
   }, [socio_Negocio]);
 
@@ -317,12 +321,12 @@ export default function OrdenDetalle() {
       nombre: dat.CardName,
       telefono: dat.Phone1,
       direccion: dat.Address,
-      direccion_entrega: datos_state?.pedido?.direccion_entrega,
-      pedido_para_tienda: datos_state?.pedido?.para_tienda,
+      direccion_entrega: pedidoState?.direccion_entrega,
+      pedido_para_tienda: pedidoState?.para_tienda,
       ContactPerson: dat.ContactPerson,
       Email: dat.EmailAddress,
-      DocNum: datos_state?.pedido?.DocNum,
-      fecha_oc: datos_state.pedido.age,
+      DocNum: pedidoState?.DocNum,
+      fecha_oc: pedidoState?.age,
       Vendedor: centroDeCostos.Vendedor,
       name_cc_departamento: centroDeCostos.name_depto,
       name_cc_canal: centroDeCostos.name_canal,
@@ -521,15 +525,15 @@ export default function OrdenDetalle() {
         U_V3_FCE_Enlace,
       );
       SetAlert({
-        ok: !response.ok,
-        tipo: "info",
+        ok: true,
+        tipo: "success",
         text: response.message,
       });
     } catch (error) {
       SetAlert({
-        ok: !error.response.data.ok,
+        ok: true,
         tipo: "warning",
-        text: error.response.data.message,
+        text: error?.response?.data?.message || "SAP creó el documento, pero no se pudo actualizar el estado local.",
       });
     }
   };
@@ -584,7 +588,7 @@ export default function OrdenDetalle() {
       
 
       try {
-        await axios.get("https://agente.ecofiltro.net/webhook/infile_url");
+        await axios.post("/sap/refresh-invoice-url");
       } catch (error) {
       }
       //put_pedidoHeaderCompleto_OV({id:datos_state.pedido.id, ordenDeVenta:datos_state.pedido.pedido, DocNum: response[3].DocNum});
@@ -601,7 +605,7 @@ export default function OrdenDetalle() {
       const DocNum = response?.data[0]?.data?.DocNum;
       const DocEntry = response?.data[0]?.data?.DocEntry;
       console.log('data4504851107',DocEntry)
-      updateDocNumOrder(payload?.id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace);
+      await updateDocNumOrder(payload?.id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace);
       /*setTimeout(() => {
         navigate("/h2h/OrdenDeVenta");
       }, 1000);*/
@@ -663,6 +667,27 @@ export default function OrdenDetalle() {
 
     return acc + totalLinea;
   }, 0);
+
+  if (!pedidoState) {
+    return (
+      <div className="p-6">
+        <Alert
+          alert={{
+            ok: true,
+            tipo: "warning",
+            text: "No se encontró información de la orden. Regresa al listado y abre el detalle nuevamente.",
+          }}
+        />
+        <ButtonCustom
+          onClick={() => navigate("/h2h/OrdenDeVenta")}
+          text="Volver al listado"
+          type="primary"
+          disabled={false}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       {activateMessage ? (
@@ -675,7 +700,7 @@ export default function OrdenDetalle() {
       <ButtonCustom
         tooltip={alert.ok ? null : null}
         namebu="Buton Select"
-        disabled={true}
+        disabled={false}
         onClick={() => navigate(-1)}
         className="mb-4 px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
         text="<- Volver"
@@ -826,7 +851,7 @@ export default function OrdenDetalle() {
               disabled={alert.ok}
               tooltip={alert.ok ? null : { msj: alert.text, ok: alert.ok }}
               defaultValue={
-                datos_state?.pedido?.para_tienda == "006 Xela"
+                pedidoState?.para_tienda == "006 Xela"
                   ? "Bodega65"
                   : "Bodega99"
               }

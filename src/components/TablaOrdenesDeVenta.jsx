@@ -23,7 +23,7 @@ console.log('datossss',dato)
     key: index,
     id: dato.id_oc,
     messageId: dato.messageId,
-    tienda: dato.nombre,
+    tienda: dato.alias,
     DocNum: dato.DocNum,
     pedido: dato.numero_oc,
     cod_sap: dato.cardCode,
@@ -238,17 +238,28 @@ console.log('datas',data)
       ),
     },
     {
-      title: <span style={{ color: "white" }}>Para Tienda</span>,
-      dataIndex: 'para_tienda',
-      key: 'para_tienda',
-      ...getColumnSearchProps('para_tienda'),
-    },
-    {
+  title: <span style={{ color: "white" }}>Para Tienda</span>,
+  dataIndex: 'para_tienda',
+  key: 'para_tienda',
+  ...getColumnSearchProps('para_tienda'),
+  // Agregamos la función render para controlar cómo se muestra el texto
+  render: (texto) => (
+    <div style={{ 
+      maxHeight: '20px',     /* Altura máxima de la celda antes de hacer scroll */
+      overflowY: 'auto',     /* Activa el scroll vertical */
+      whiteSpace: 'pre-line' /* Mantiene saltos de línea si los hay */
+    }}>
+      {texto}
+    </div>
+  ),
+},
+
+    /*{
       title: <span style={{ color: "white" }}>Teléfono</span>,
       dataIndex: 'telefono',
       key: 'telefono',
       ...getColumnSearchProps('telefono'),
-    },
+    },*/
     {
       title: <span style={{ color: "white" }}>Fecha</span>,
       dataIndex: 'age',

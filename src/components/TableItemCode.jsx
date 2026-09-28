@@ -3,7 +3,6 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Space, Table } from 'antd';
 import Highlighter from 'react-highlight-words';
 import Modal from "../components/Modal"
-import { write } from 'xlsx';
 
 
 
@@ -109,10 +108,10 @@ const TableItemCode = ({datos, get_socioNegocio}) => {
       },
       {
       title: <span style={{ color: "white" }}>Cadena</span>,
-      dataIndex: 'name_cadena',
-      key: 'name_cadena',
+      dataIndex: 'alias',
+      key: 'alias',
       width: 150,
-      ...getColumnSearchProps('name_cadena')
+      ...getColumnSearchProps('alias')
       },
     {
       title: <span style={{ color: "white" }}>SKU Cliente</span>,
@@ -120,14 +119,24 @@ const TableItemCode = ({datos, get_socioNegocio}) => {
       key: 'sku_cliente',
       width: 150,
       ...getColumnSearchProps('sku_cliente'),
+       render: (texto) => (
+    <div style={{ 
+      maxHeight: '20px',     /* Altura máxima de la celda antes de hacer scroll */
+      overflowY: 'auto',     /* Activa el scroll vertical */
+      whiteSpace: 'pre-line' /* Mantiene saltos de línea si los hay */
+    }}>
+      {texto}
+    </div>
+  ),
     },
-    {
+   /* {
      title: <span style={{ color: "white" }}>Descripcion cliente</span>,
      dataIndex: 'descripcion_cliente',
      key: 'descripcion_cliente',
      width: 150,
      ...getColumnSearchProps('descripcion_cliente'),
-   },
+  
+   },*/
     {
       title: <span style={{ color: "white" }}>SKU Ecofiltro</span>,
       dataIndex: 'sku_ecofiltro',

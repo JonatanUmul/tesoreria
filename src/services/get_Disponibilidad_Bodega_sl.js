@@ -1,13 +1,9 @@
-
-import { message } from "antd";
-import axios from "axios";
-
-const SAP_HANA = 'https://www.eco-aplicaciones.com/sapconn';
+import axios from "../api/axios.js";
 
 export const get_Disponibilidad_Bodega_sl = async(itemCode, WhsCodeor) => {
 
     try {
-        const response= await axios.post(`${SAP_HANA}/disponible_Items`,
+        const response= await axios.post("/sapHana/disponibilidad-bodega",
             {
                 ItemCode: itemCode,
                 WhsCode: WhsCodeor || "Bodega99"
@@ -17,7 +13,7 @@ export const get_Disponibilidad_Bodega_sl = async(itemCode, WhsCodeor) => {
             }}
         )
 
-        return response
+        return response.data
     } catch (error) {
 
         return {

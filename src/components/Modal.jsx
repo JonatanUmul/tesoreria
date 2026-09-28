@@ -6,9 +6,10 @@ import FormSocioNegocio from './FormSocioNegocio';
 import UpdateItemCode from './updateItemCode';
 import LeerUrlPdf from './LeerURL'
 import LogModificaciones from './LogModificaciones'
+import EjecutarWorkFlowSn from './EjecutarWorkFlowSn'
 
 const App = ({title, formulario, socioDeNegocio , record, get_socioNegocio, URL_PDF}) => { 
-
+  
   const [open, setOpen] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
@@ -48,6 +49,8 @@ const App = ({title, formulario, socioDeNegocio , record, get_socioNegocio, URL_
         return <LeerUrlPdf record={record} onSuccess={handleSuccess} URL_PDF={URL_PDF}/>;
       case "LogModificaciones":
         return <LogModificaciones record={record} onSuccess={handleSuccess}/>;
+      case "sn_workflow":
+        return <EjecutarWorkFlowSn record={record} onSuccess={handleSuccess}/>;
       default:
         return null;
     }
@@ -64,6 +67,8 @@ const App = ({title, formulario, socioDeNegocio , record, get_socioNegocio, URL_
       case "VerFacturaReserva":
         return <p>{title}</p>
       case "LogModificaciones":
+        return <p>{title}</p>
+      case "sn_workflow":
         return <p>{title}</p>
       default:
         return null;
@@ -102,6 +107,12 @@ const App = ({title, formulario, socioDeNegocio , record, get_socioNegocio, URL_
         height: "60vh",
       };
 
+    case "sn_workflow":
+      return {
+        width: "55vw",
+        height: "60vh",
+      };
+
     default:
       return {
         width: "75vw",
@@ -129,6 +140,9 @@ const config = modalConfig();
         break;
        case "socioNegocio":
           setDisabled(false)
+
+       case "sn_workflow":
+          setDisabled(false)
         break;
       default:
         return null;
@@ -148,7 +162,7 @@ useEffect(()=>{
     <div
       style={{
         width: "100%",
-        cursor: "move",
+        //cursor: "move",
         fontWeight: "bold",
         fontSize: "18px",
       }}
@@ -184,7 +198,7 @@ useEffect(()=>{
       disabled={disabled}
       bounds={bounds}
       nodeRef={draggleRef}
-      onStart={(event, uiData) => onStart(event, uiData)}
+      //onStart={(event, uiData) => onStart(event, uiData)}
     >
       <div ref={draggleRef}>
         {modal}

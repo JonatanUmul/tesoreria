@@ -7,7 +7,7 @@ const Login = () => {
   const [user, setEmail] = useState('');
   const [pass, setPassword] = useState('');
   const [alert, SetAlert] = useState({});
-const { setUserName, setUserId } = useContext(UserContext);
+const { setUserName, setUserId, setUserToken } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -15,8 +15,6 @@ const { setUserName, setUserId } = useContext(UserContext);
 
     try {
       const respuesta = await LoginServices(user, pass);
-   
-console.log(respuesta)
       if (respuesta.data.ok) {
          SetAlert({
         ok: respuesta.data.ok,
@@ -27,6 +25,7 @@ console.log(respuesta)
 
   setUserName(data.nombre);
   setUserId(data.id);
+  setUserToken(data.token);
 
   navigate("/h2h/OrdenDeVenta");
 

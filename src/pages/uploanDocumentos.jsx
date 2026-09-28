@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   PlusOutlined,
   FileSearchOutlined,
-  DeleteOutlined,
 } from "@ant-design/icons";
-import { Form, Upload } from "antd";
+import { Form, Upload, message } from "antd";
 import Ocemaco from "../services/ocemaco.service ";
 import Oc_pdf from "../services/oc_pdf.service";
 import DetallePedido from "../components/DetallePedido";
@@ -24,7 +23,6 @@ const normFile = (e) => {
 
 const FormDisabledDemo = () => {
   const navigate = useNavigate();
-  const [componentDisabled, setComponentDisabled] = useState("");
   const [fileUpload, setFileUpload] = useState(null);
   const [tipoFile, setTipoFile] = useState("");
   const [datosOC, setDatosOC] = useState([]);
@@ -38,11 +36,6 @@ console.log('datos',datosOC)
   const RemoveFile = () => {
     setFileUpload(null);
   };
-
-  //Cada vez que el valor en el fileUpload cambie se limpua el estado llamando a la función RemoveFile()
-  useEffect(() => {
-    RemoveFile();
-  }, [fileUpload]);
 
   const props = {
     accept: ".xls, .xlsx, .pdf",
@@ -58,7 +51,6 @@ console.log('datos',datosOC)
       //Con mime capturamos el tipo de archivo: pdf, excel, etc
       const mime = info.file.type;
       setTipoFile(mime);
-      setComponentDisabled(info);
       if (mime.includes("excel")) {
         if (info.file.status !== "uploading") {
           let reader = new FileReader();
@@ -86,6 +78,16 @@ console.log('datos',datosOC)
   //Funcion para enciar el archivo al backend
   const Enviar = async () => {
     try {
+      if (!fileUpload) {
+        SetAlert({
+          ok: true,
+          tipo: "warning",
+          text: "Selecciona un archivo PDF o Excel antes de extraer datos.",
+        });
+        return;
+      }
+
+      setSkeleton(true);
       //Desición para enviar el archivo a cada endpoint si es pdf o excel
       if (tipoFile.includes("excel")) {
         const response = await Ocemaco(a);
@@ -95,7 +97,13 @@ console.log('datos',datosOC)
         setDatosOC(response.data.response.output);
       }
     } catch (error) {
-      console.log(error);
+      SetAlert({
+        ok: true,
+        tipo: "error",
+        text: error?.response?.data?.message || "No fue posible extraer datos del documento.",
+      });
+    } finally {
+      setSkeleton(false);
     }
   };
 
@@ -103,12 +111,21 @@ console.log('datos',datosOC)
     navigate("/h2h/OrdenDeVenta");
   };
 
+  const safeParseJson = (value) => {
+    if (typeof value !== "string") return value;
+
+    try {
+      return JSON.parse(value.replace(/```json|```/g, "").trim());
+    } catch {
+      return null;
+    }
+  };
+
     const cleanData = typeof datosOC === "string"
   ? datosOC.replace(/```json|```/g, "").trim()
   : datosOC;
   
-  const parsedDat = typeof cleanData === "string" ? JSON.parse(cleanData) : cleanData;
-  console.log('datosss',  parsedDat)
+  const parsedDat = safeParseJson(cleanData);
 
   const buildPayload = () => {
     return {
@@ -136,15 +153,23 @@ console.log('datos',datosOC)
 
   const CrearOvMysql = async () => {
     try {
+      if (!parsedDat?.header || !Array.isArray(parsedDat?.items)) {
+        SetAlert({
+          ok: true,
+          tipo: "warning",
+          text: "Primero extrae y valida los datos de la orden.",
+        });
+        return;
+      }
+
       setActivateMessage(true);
       const response =await CrearOvEnMysql({ payload });
-      console.log('trye catsc',response)
       setMessages({
-        types: "loading",
-        contents: "Action in progress..",
-        durations: 1,
+        types: "success",
+        contents: response?.data?.message || "Orden creada correctamente.",
+        durations: 4,
       });
-      setSkeleton(true);
+      setSkeleton(false);
     } catch (error) {
       setActivateMessage(true);
       setMessages({
@@ -154,9 +179,9 @@ console.log('datos',datosOC)
       });
       setSkeleton(false);
       SetAlert({
-        ok: false,
+        ok: true,
         tipo: "error",
-        text: response?.error?.message,
+        text: error?.response?.data?.message || "No fue posible crear la orden.",
       });
     }
   };

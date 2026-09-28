@@ -1,10 +1,9 @@
-import axios from "axios";
-const URL = import.meta.env.VITE_API_URL;
+import axios from "../api/axios.js";
 
 const creacionPedido_sl = async({tipoDoc, payload}) => {
 
     try {
-        const response= await axios.post(tipoDoc=='oc'? `${URL}/sap/orders` : `${URL}/sap/invoinces`,{
+        const response= await axios.post(tipoDoc=='oc'? "/sap/orders" : "/sap/invoinces",{
             payload:payload
         })
        return response;

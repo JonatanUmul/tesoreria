@@ -17,6 +17,7 @@ const ButtonCustom = ({
   color,
   block,
 }) => {
+  const isDisabled = disabled === true || disabled === "true";
 
   return (
   tooltip?.ok ?   
@@ -37,7 +38,7 @@ const ButtonCustom = ({
 
         ...style,
       }}
-      disabled={disabled ? false : true}
+      disabled={isDisabled}
     >
       {text}
     </Button>:
@@ -59,7 +60,7 @@ const ButtonCustom = ({
 
         ...style,
       }}
-      disabled={disabled ? false : true}
+      disabled={isDisabled}
     >
       {text}
     </Button>
