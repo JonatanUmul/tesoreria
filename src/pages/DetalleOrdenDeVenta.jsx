@@ -606,9 +606,9 @@ export default function OrdenDetalle() {
       const DocEntry = response?.data[0]?.data?.DocEntry;
       console.log('data4504851107',DocEntry)
       await updateDocNumOrder(payload?.id, DocNum, DocEntry, tipoDocumento, U_V3_FCE_Enlace);
-      /*setTimeout(() => {
+      setTimeout(() => {
         navigate("/h2h/OrdenDeVenta");
-      }, 1000);*/
+      }, 1000);
     }
   };
   const handleDeleteItem = async (model) => {
